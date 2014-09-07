@@ -351,7 +351,7 @@ public abstract class OsmServerReader extends OsmConnection {
     }
 
     /**
-     * Downloads notes from the API.
+     * Downloads notes from the API, given API limit parameters
      *
      * @param noteLimit How many notes to download. Defaults to 1000 if not specified. API has a hard limit of 10000
      * @param daysClosed Return notes closed this many days in the past. -1 means all notes, ever. 0 means only unresolved notes.
@@ -360,6 +360,27 @@ public abstract class OsmServerReader extends OsmConnection {
      * @throws OsmTransferException if any errors happen
      */
     public List<Note> parseNotes(Integer noteLimit, Integer daysClosed, ProgressMonitor progressMonitor) throws OsmTransferException {
+        return null;
+    }
+
+    /**
+     * Downloads notes from a given raw URL. The URL is assumed to be complete and no API limits are added
+     *
+     * @param progressMonitor
+     * @return A list of notes parsed from the URL
+     * @throws OsmTransferException
+     */
+    public List<Note> parseRawNotes(final ProgressMonitor progressMonitor) throws OsmTransferException {
+        return null;
+    }
+
+    /**
+     * Download notes from a URL that contains a bzip2 compressed notes dump file
+     * @param progressMonitor
+     * @return A list of notes parsed from the URL
+     * @throws OsmTransferException
+     */
+    public List<Note> parseRawNotesBzip2(final ProgressMonitor progressMonitor) throws OsmTransferException {
         return null;
     }
 }

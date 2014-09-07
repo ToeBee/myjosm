@@ -14,6 +14,7 @@ import org.openstreetmap.josm.data.notes.Note;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
 import org.openstreetmap.josm.gui.progress.ProgressMonitor;
 import org.openstreetmap.josm.io.BoundingBoxDownloader;
+import org.openstreetmap.josm.io.OsmServerLocationReader;
 import org.openstreetmap.josm.io.OsmServerReader;
 import org.openstreetmap.josm.io.OsmTransferException;
 import org.xml.sax.SAXException;
@@ -31,8 +32,8 @@ public class DownloadNotesTask extends AbstractDownloadTask {
 
     @Override
     public Future<?> loadUrl(boolean newLayer, String url, ProgressMonitor progressMonitor) {
-        // TODO Auto-generated method stub
-        return null;
+        downloadTask = new DownloadTask(new OsmServerLocationReader(url), progressMonitor);
+        return Main.worker.submit(downloadTask);
     }
 
     @Override
