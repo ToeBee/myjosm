@@ -159,6 +159,7 @@ public class BoundingBoxDownloader extends OsmServerReader {
 
     @Override
     public List<Note> parseNotes(Integer noteLimit, Integer daysClosed, ProgressMonitor progressMonitor) throws OsmTransferException {
+        progressMonitor.beginTask("Downloading notes");
         noteLimit = checkNoteLimit(noteLimit);
         daysClosed = checkDaysClosed(daysClosed);
         String url = new StringBuilder()
