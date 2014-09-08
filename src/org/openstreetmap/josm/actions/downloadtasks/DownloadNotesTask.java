@@ -12,6 +12,7 @@ import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.notes.Note;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
+import org.openstreetmap.josm.gui.layer.NoteLayer;
 import org.openstreetmap.josm.gui.progress.ProgressMonitor;
 import org.openstreetmap.josm.io.BoundingBoxDownloader;
 import org.openstreetmap.josm.io.OsmServerLocationReader;
@@ -89,7 +90,15 @@ public class DownloadNotesTask extends AbstractDownloadTask {
             }
 
             Main.debug("got notes: " + notesData.size());
-            //TODO: import notes into layer
+            List<NoteLayer> noteLayers = Main.map.mapView.getLayersOfType(NoteLayer.class);
+            NoteLayer layer;
+            if(noteLayers.size() > 0) {
+                layer = noteLayers.get(0);
+                layer.addNotes(notesData);
+            } else {
+                layer = new NoteLayer(notesData, "Notes");
+                Main.main.addLayer(layer);
+            }
         }
 
         @Override
