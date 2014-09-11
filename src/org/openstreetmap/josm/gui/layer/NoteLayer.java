@@ -4,7 +4,9 @@ package org.openstreetmap.josm.gui.layer;
 import static org.openstreetmap.josm.tools.I18n.tr;
 
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
+import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 import java.util.List;
 
