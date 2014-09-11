@@ -23,17 +23,24 @@ import org.xml.sax.SAXException;
 /** Task for downloading notes */
 public class DownloadNotesTask extends AbstractDownloadTask {
 
+    private static final String PATTERN_API_URL = "https?://.*/api/0.6/notes.*";
+    private static final String PATTERN_DUMP_FILE = "https?://.*/(.*\\.osn(.bz2)?)";
+
     private DownloadTask downloadTask;
 
     @Override
     public Future<?> download(boolean newLayer, Bounds downloadArea, ProgressMonitor progressMonitor) {
-        downloadTask = new DownloadTask(new BoundingBoxDownloader(downloadArea), progressMonitor);
+        downloadTask = new DownloadBoundingBoxTask(new BoundingBoxDownloader(downloadArea), progressMonitor);
         return Main.worker.submit(downloadTask);
     }
 
     @Override
     public Future<?> loadUrl(boolean newLayer, String url, ProgressMonitor progressMonitor) {
-        downloadTask = new DownloadTask(new OsmServerLocationReader(url), progressMonitor);
+        if(url.endsWith(".bz2")) {
+            downloadTask = new DownloadBzip2RawUrlTask(new OsmServerLocationReader(url), progressMonitor);
+        } else {
+            downloadTask = new DownloadRawUrlTask(new OsmServerLocationReader(url), progressMonitor);
+        }
         return Main.worker.submit(downloadTask);
     }
 
@@ -50,49 +57,45 @@ public class DownloadNotesTask extends AbstractDownloadTask {
         return null;
     }
 
-    class DownloadTask extends PleaseWaitRunnable {
-        private OsmServerReader reader;
-        private List<Note> notesData;
+    @Override
+    public String getTitle() {
+        return "Download OSM Notes";
+    }
+
+    @Override
+    public String[] getPatterns() {
+        return new String[] {PATTERN_API_URL, PATTERN_DUMP_FILE};
+    }
+
+    abstract class DownloadTask extends PleaseWaitRunnable {
+        protected OsmServerReader reader;
+        protected List<Note> notesData;
 
         public DownloadTask(OsmServerReader reader, ProgressMonitor progressMonitor) {
             super(tr("Downloading Notes"));
             this.reader = reader;
         }
 
-        @Override
-        public void realRun() throws IOException, SAXException, OsmTransferException {
-            if(isCanceled()) {
-                return;
-            }
-            ProgressMonitor subMonitor = progressMonitor.createSubTaskMonitor(ProgressMonitor.ALL_TICKS, false);
-            try {
-                notesData = reader.parseNotes(null, null, subMonitor);
-            } catch(Exception e) {
-                if (isCanceled())
-                    return;
-                if (e instanceof OsmTransferException) {
-                    rememberException(e);
-                } else {
-                    rememberException(new OsmTransferException(e));
-                }
-            }
-        }
 
-        @Override protected void finish() {
+        @Override
+        protected void finish() {
             Main.debug("finish called in DownloadNotesTask");
             if (isCanceled() || isFailed()) {
                 Main.debug("was cancelled or failed");
                 return;
             }
-            if (notesData == null) {
-                Main.debug("notes are null");
+
+            if(notesData == null) {
                 return;
             }
+            Main.debug("Notes downloaded: " + notesData.size());
 
-            Main.debug("got notes: " + notesData.size());
-            List<NoteLayer> noteLayers = Main.map.mapView.getLayersOfType(NoteLayer.class);
+            List<NoteLayer> noteLayers = null;
+            if(Main.map != null) {
+                noteLayers = Main.map.mapView.getLayersOfType(NoteLayer.class);
+            }
             NoteLayer layer;
-            if(noteLayers.size() > 0) {
+            if(noteLayers != null && noteLayers.size() > 0) {
                 layer = noteLayers.get(0);
                 layer.addNotes(notesData);
             } else {
@@ -106,6 +109,90 @@ public class DownloadNotesTask extends AbstractDownloadTask {
             setCanceled(true);
             if (reader != null) {
                 reader.cancel();
+            }
+        }
+
+        @Override
+        public abstract void realRun() throws IOException, SAXException, OsmTransferException;
+    }
+
+    class DownloadBoundingBoxTask extends DownloadTask {
+
+        public DownloadBoundingBoxTask(OsmServerReader reader, ProgressMonitor progressMonitor) {
+            super(reader, progressMonitor);
+        }
+
+        @Override
+        public void realRun() throws IOException, SAXException, OsmTransferException {
+            if(isCanceled()) {
+                return;
+            }
+            ProgressMonitor subMonitor = progressMonitor.createSubTaskMonitor(ProgressMonitor.ALL_TICKS, false);
+            try {
+                notesData = reader.parseNotes(null, null, subMonitor);
+
+            } catch(Exception e) {
+                if (isCanceled())
+                    return;
+                if (e instanceof OsmTransferException) {
+                    rememberException(e);
+                } else {
+                    rememberException(new OsmTransferException(e));
+                }
+            }
+        }
+    }
+
+    class DownloadRawUrlTask extends DownloadTask {
+
+        public DownloadRawUrlTask(OsmServerReader reader, ProgressMonitor progressMonitor) {
+            super(reader, progressMonitor);
+        }
+
+        @Override
+        public void realRun() throws IOException, SAXException, OsmTransferException {
+            if(isCanceled()) {
+                return;
+            }
+            ProgressMonitor subMonitor = progressMonitor.createSubTaskMonitor(ProgressMonitor.ALL_TICKS, false);
+            try {
+                notesData = reader.parseRawNotes(subMonitor);
+
+            } catch(Exception e) {
+                if (isCanceled())
+                    return;
+                if (e instanceof OsmTransferException) {
+                    rememberException(e);
+                } else {
+                    rememberException(new OsmTransferException(e));
+                }
+            }
+        }
+    }
+
+    class DownloadBzip2RawUrlTask extends DownloadTask {
+
+        public DownloadBzip2RawUrlTask(OsmServerReader reader, ProgressMonitor progressMonitor) {
+            super(reader, progressMonitor);
+        }
+
+        @Override
+        public void realRun() throws IOException, SAXException, OsmTransferException {
+            if(isCanceled()) {
+                return;
+            }
+            ProgressMonitor subMonitor = progressMonitor.createSubTaskMonitor(ProgressMonitor.ALL_TICKS, false);
+            try {
+                notesData = reader.parseRawNotesBzip2(subMonitor);
+
+            } catch(Exception e) {
+                if (isCanceled())
+                    return;
+                if (e instanceof OsmTransferException) {
+                    rememberException(e);
+                } else {
+                    rememberException(new OsmTransferException(e));
+                }
             }
         }
     }
