@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.downloadtasks.DownloadGpsTask;
 import org.openstreetmap.josm.data.gpx.GpxData;
 import org.openstreetmap.josm.data.notes.Note;
@@ -169,13 +168,13 @@ public class OsmServerLocationReader extends OsmServerReader {
     }
 
     protected class NoteParser extends Parser<List<Note>> {
+
         public NoteParser(ProgressMonitor progressMonitor, Compression compression) {
             super(progressMonitor, compression);
         }
 
         @Override
         public List<Note> parse() throws OsmTransferException, IllegalDataException, IOException, SAXException {
-            Main.debug("in note parse function... " + url);
             in = getInputStream(url, progressMonitor.createSubTaskMonitor(1, true));
             if(in == null) {
                 return new ArrayList<Note>();

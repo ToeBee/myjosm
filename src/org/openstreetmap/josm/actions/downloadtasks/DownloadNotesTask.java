@@ -53,7 +53,6 @@ public class DownloadNotesTask extends AbstractDownloadTask {
 
     @Override
     public String getConfirmationMessage(URL url) {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -130,7 +129,6 @@ public class DownloadNotesTask extends AbstractDownloadTask {
             ProgressMonitor subMonitor = progressMonitor.createSubTaskMonitor(ProgressMonitor.ALL_TICKS, false);
             try {
                 notesData = reader.parseNotes(null, null, subMonitor);
-
             } catch(Exception e) {
                 if (isCanceled())
                     return;
@@ -157,7 +155,6 @@ public class DownloadNotesTask extends AbstractDownloadTask {
             ProgressMonitor subMonitor = progressMonitor.createSubTaskMonitor(ProgressMonitor.ALL_TICKS, false);
             try {
                 notesData = reader.parseRawNotes(subMonitor);
-
             } catch(Exception e) {
                 if (isCanceled())
                     return;
@@ -184,7 +181,6 @@ public class DownloadNotesTask extends AbstractDownloadTask {
             ProgressMonitor subMonitor = progressMonitor.createSubTaskMonitor(ProgressMonitor.ALL_TICKS, false);
             try {
                 notesData = reader.parseRawNotesBzip2(subMonitor);
-
             } catch(Exception e) {
                 if (isCanceled())
                     return;
