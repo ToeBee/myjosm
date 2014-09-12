@@ -36,7 +36,7 @@ public class DownloadNotesTask extends AbstractDownloadTask {
 
     @Override
     public Future<?> loadUrl(boolean newLayer, String url, ProgressMonitor progressMonitor) {
-        if(url.endsWith(".bz2")) {
+        if (url.endsWith(".bz2")) {
             downloadTask = new DownloadBzip2RawUrlTask(new OsmServerLocationReader(url), progressMonitor);
         } else {
             downloadTask = new DownloadRawUrlTask(new OsmServerLocationReader(url), progressMonitor);
@@ -84,17 +84,17 @@ public class DownloadNotesTask extends AbstractDownloadTask {
                 return;
             }
 
-            if(notesData == null) {
+            if (notesData == null) {
                 return;
             }
             Main.debug("Notes downloaded: " + notesData.size());
 
             List<NoteLayer> noteLayers = null;
-            if(Main.map != null) {
+            if (Main.map != null) {
                 noteLayers = Main.map.mapView.getLayersOfType(NoteLayer.class);
             }
             NoteLayer layer;
-            if(noteLayers != null && noteLayers.size() > 0) {
+            if (noteLayers != null && noteLayers.size() > 0) {
                 layer = noteLayers.get(0);
                 layer.addNotes(notesData);
             } else {
@@ -123,13 +123,13 @@ public class DownloadNotesTask extends AbstractDownloadTask {
 
         @Override
         public void realRun() throws IOException, SAXException, OsmTransferException {
-            if(isCanceled()) {
+            if (isCanceled()) {
                 return;
             }
             ProgressMonitor subMonitor = progressMonitor.createSubTaskMonitor(ProgressMonitor.ALL_TICKS, false);
             try {
                 notesData = reader.parseNotes(null, null, subMonitor);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 if (isCanceled())
                     return;
                 if (e instanceof OsmTransferException) {
@@ -149,13 +149,13 @@ public class DownloadNotesTask extends AbstractDownloadTask {
 
         @Override
         public void realRun() throws IOException, SAXException, OsmTransferException {
-            if(isCanceled()) {
+            if (isCanceled()) {
                 return;
             }
             ProgressMonitor subMonitor = progressMonitor.createSubTaskMonitor(ProgressMonitor.ALL_TICKS, false);
             try {
                 notesData = reader.parseRawNotes(subMonitor);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 if (isCanceled())
                     return;
                 if (e instanceof OsmTransferException) {
@@ -175,13 +175,13 @@ public class DownloadNotesTask extends AbstractDownloadTask {
 
         @Override
         public void realRun() throws IOException, SAXException, OsmTransferException {
-            if(isCanceled()) {
+            if (isCanceled()) {
                 return;
             }
             ProgressMonitor subMonitor = progressMonitor.createSubTaskMonitor(ProgressMonitor.ALL_TICKS, false);
             try {
                 notesData = reader.parseRawNotesBzip2(subMonitor);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 if (isCanceled())
                     return;
                 if (e instanceof OsmTransferException) {

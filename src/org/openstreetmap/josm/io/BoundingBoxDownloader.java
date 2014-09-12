@@ -179,7 +179,7 @@ public class BoundingBoxDownloader extends OsmServerReader {
             return reader.parse();
         } catch (IOException e) {
             throw new OsmTransferException(e);
-        } catch(SAXException e) {
+        } catch (SAXException e) {
             throw new OsmTransferException(e);
         } finally {
             progressMonitor.finishTask();
@@ -187,14 +187,14 @@ public class BoundingBoxDownloader extends OsmServerReader {
     }
 
     private Integer checkNoteLimit(Integer limit) {
-        if(limit == null) {
+        if (limit == null) {
             limit = Main.pref.getInteger("osm.notes.downloadLimit", 1000);
         }
-        if(limit > 10000) {
+        if (limit > 10000) {
             Main.error("Requested note limit is over API hard limit of 10000. Reducing to 10000.");
             limit = 10000;
         }
-        if(limit < 1) {
+        if (limit < 1) {
             Main.error("Requested note limit is less than 1. Setting to 1.");
             limit = 1;
         }
@@ -203,10 +203,10 @@ public class BoundingBoxDownloader extends OsmServerReader {
     }
 
     private Integer checkDaysClosed(Integer days) {
-        if(days == null) {
+        if (days == null) {
             days = Main.pref.getInteger("osm.notes.daysClosed", 1);
         }
-        if(days < -1) {
+        if (days < -1) {
             Main.error("Requested days closed must be greater than -1");
             days = -1;
         }
