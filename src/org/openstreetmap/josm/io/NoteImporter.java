@@ -9,17 +9,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import org.apache.tools.bzip2.CBZip2InputStream;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.ExtensionFileFilter;
 import org.openstreetmap.josm.data.notes.Note;
 import org.openstreetmap.josm.gui.layer.NoteLayer;
 import org.openstreetmap.josm.gui.progress.ProgressMonitor;
 import org.openstreetmap.josm.gui.util.GuiHelper;
+import org.openstreetmap.josm.tools.Utils;
 import org.xml.sax.SAXException;
 
 /**
- * File importer that reads note dump files (*.osn)
+ * File importer that reads note dump files (*.osn and .osn.bz2)
  */
 public class NoteImporter extends FileImporter {
 
@@ -34,9 +34,11 @@ public class NoteImporter extends FileImporter {
     public void importData(File file, ProgressMonitor progressMonitor) throws IOException {
         Main.debug("importing notes file " + file.getAbsolutePath());
         final String fileName = file.getName();
-        InputStream is = new FileInputStream(file);
+        InputStream is;
         if(fileName.endsWith(".bz2")) {
-            is = new CBZip2InputStream(is);
+            is = Utils.getBZip2InputStream(new FileInputStream(file));
+        } else {
+            is = new FileInputStream(file);
         }
         NoteReader reader = new NoteReader(is);
         try {
@@ -62,6 +64,9 @@ public class NoteImporter extends FileImporter {
             Main.error("error opening up notes file");
             Main.error(e, true);
             throw new IOException(e.getMessage(), e);
+        }
+        finally {
+            Utils.close(is);
         }
     }
 
