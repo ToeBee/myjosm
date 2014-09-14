@@ -26,6 +26,7 @@ public class NoteImporter extends FileImporter {
     private static final ExtensionFileFilter FILE_FILTER = new ExtensionFileFilter(
             "osn,osn.bz2", "osn", tr("Note Files") + " (*.osn *.osn.bz2)");
 
+    /** Create an importer for note dump files */
     public NoteImporter() {
         super(FILE_FILTER);
     }
