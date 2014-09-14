@@ -61,7 +61,7 @@ public class NoteImporter extends FileImporter {
         } catch (SAXException e) {
             Main.error("error opening up notes file");
             Main.error(e, true);
-            throw new IOException(tr("Error loading notes file {1}", fileName), e);
+            throw new IOException(e.getMessage(), e);
         }
     }
 
