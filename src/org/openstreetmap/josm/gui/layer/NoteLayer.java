@@ -146,6 +146,7 @@ public class NoteLayer extends AbstractModifiableLayer {
             }
         }
         Main.map.mapView.repaint();
+        Main.map.noteDialog.setNoteList(notes);
         Main.debug("notes in layer: " + notes.size());
     }
 }
