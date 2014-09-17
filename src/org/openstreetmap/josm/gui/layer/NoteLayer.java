@@ -6,6 +6,7 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.Action;
@@ -14,10 +15,13 @@ import javax.swing.ImageIcon;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.notes.Note;
 import org.openstreetmap.josm.data.notes.Note.State;
 import org.openstreetmap.josm.data.notes.NoteComment;
+import org.openstreetmap.josm.data.osm.User;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
+import org.openstreetmap.josm.gui.JosmUserIdentityManager;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
@@ -29,6 +33,7 @@ import org.openstreetmap.josm.tools.ImageProvider;
 public class NoteLayer extends AbstractModifiableLayer {
 
     private final List<Note> notes;
+    private long newNoteId = -1;
 
     /**
      * Create a new note layer with a set of notes
@@ -144,9 +149,57 @@ public class NoteLayer extends AbstractModifiableLayer {
             if (!notes.contains(newNote)) {
                 notes.add(newNote);
             }
+            if(newNote.getId() <= newNoteId) {
+                newNoteId = newNote.getId() - 1;
+            }
         }
+        dataUpdated();
+        Main.debug("notes in layer: " + notes.size());
+    }
+
+    public void createNote(LatLon location, String text) {
+        Note note = new Note(location);
+        note.setId(newNoteId--);
+        NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.opened, true);
+        note.addComment(comment);
+        notes.add(note);
+        dataUpdated();
+    }
+
+    public void addCommentToNote(Note note, String text) {
+        if(!notes.contains(note)) {
+            throw new IllegalArgumentException("Note to modify must be in layer");
+        }
+        NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.commented, true);
+        note.addComment(comment);
+        dataUpdated();
+    }
+
+    public void closeNote(Note note, String text) {
+        if(!notes.contains(note)) {
+            throw new IllegalArgumentException("Note to close must be in layer");
+        }
+        NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.closed, true);
+        note.addComment(comment);
+        dataUpdated();
+    }
+
+    public void reOpenNote(Note note, String text) {
+        if(!notes.contains(note)) {
+            throw new IllegalArgumentException("Note to reopen must be in layer");
+        }
+        NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.reopened, true);
+        note.addComment(comment);
+        dataUpdated();
+    }
+
+    private void dataUpdated() {
         Main.map.mapView.repaint();
         Main.map.noteDialog.setNoteList(notes);
-        Main.debug("notes in layer: " + notes.size());
+    }
+
+    private User getCurrentUser() {
+        JosmUserIdentityManager userMgr = JosmUserIdentityManager.getInstance();
+        return User.createOsmUser(userMgr.getUserId(), userMgr.getUserName());
     }
 }
