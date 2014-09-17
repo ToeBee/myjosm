@@ -1,12 +1,17 @@
 // License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.gui.dialogs;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
@@ -15,12 +20,14 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.notes.Note;
 import org.openstreetmap.josm.data.notes.Note.State;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
+import org.openstreetmap.josm.gui.SideButton;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.NoteLayer;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -32,10 +39,18 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
     private NoteTableModel model;
     private JList<Note> displayList;
+    private final AddCommentAction addCommentAction;
+    private final CloseAction closeAction;
+    private final NewAction newAction;
+    private final ReopenAction reopenAction;
 
     public NoteDialog() {
         super("Notes", "notes", "List of notes", null, 150);
         Main.debug("constructed note dialog");
+        addCommentAction = new AddCommentAction();
+        closeAction = new CloseAction();
+        newAction = new NewAction();
+        reopenAction = new ReopenAction();
         build();
     }
 
@@ -49,11 +64,16 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         model = new NoteTableModel();
         displayList = new JList<Note>(model);
         displayList.setCellRenderer(new NoteRenderer());
+        displayList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         JPanel pane = new JPanel(new BorderLayout());
         pane.add(new JScrollPane(displayList), BorderLayout.CENTER);
 
-        createLayout(pane, false, null);
+        createLayout(pane, false, Arrays.asList(new SideButton[]{
+                new SideButton(addCommentAction, false),
+                new SideButton(closeAction, false),
+                new SideButton(newAction, false),
+                new SideButton(reopenAction, false)}));
     }
 
     /**
@@ -161,6 +181,67 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         public void clearData() {
             data.clear();
             fireIntervalAdded(this, 0, getSize());
+        }
+    }
+
+    class AddCommentAction extends AbstractAction {
+
+        public AddCommentAction() {
+            putValue(SHORT_DESCRIPTION,tr("Comment on a note"));
+            putValue(NAME, tr("Comment"));
+            putValue(SMALL_ICON, ImageProvider.get("notes", "note_comment"));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // TODO Auto-generated method stub
+            Main.debug("add comment action fired");
+        }
+    }
+
+    class CloseAction extends AbstractAction {
+
+        public CloseAction() {
+            putValue(SHORT_DESCRIPTION,tr("Close a note"));
+            putValue(NAME, tr("Close"));
+            putValue(SMALL_ICON, ImageProvider.get("notes", "note_closed_24x24"));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // TODO Auto-generated method stub
+            model.getSize();
+            Main.debug("close action fired");
+        }
+    }
+
+    class NewAction extends AbstractAction {
+
+        public NewAction() {
+            putValue(SHORT_DESCRIPTION,tr("Create a note"));
+            putValue(NAME, tr("Create"));
+            putValue(SMALL_ICON, ImageProvider.get("notes", "note_new_24x24.png"));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // TODO Auto-generated method stub
+            Main.debug("create action fired");
+        }
+    }
+
+    class ReopenAction extends AbstractAction {
+
+        public ReopenAction() {
+            putValue(SHORT_DESCRIPTION,tr("Reopen a note"));
+            putValue(NAME, tr("Reopen"));
+            putValue(SMALL_ICON, ImageProvider.get("notes", "note_open_24x24"));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // TODO Auto-generated method stub
+            Main.debug("reopen action fired");
         }
     }
 }
