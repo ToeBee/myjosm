@@ -6,6 +6,8 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,12 +19,14 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.notes.Note;
 import org.openstreetmap.josm.data.notes.Note.State;
 import org.openstreetmap.josm.gui.MapView;
@@ -43,6 +47,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     public static final String ICON_CLOSED_24 = "note_closed_24x24.png";
     public static final String ICON_NEW_16 = "note_new_16x16.png";
     public static final String ICON_NEW_24 = "note_new_24x24.png";
+    public static final String ICON_COMMENT = "note_comment.png";
 
     private NoteTableModel model;
     private JList<Note> displayList;
@@ -50,6 +55,8 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     private final CloseAction closeAction;
     private final NewAction newAction;
     private final ReopenAction reopenAction;
+
+    private NoteLayer noteLayer;
 
     public NoteDialog() {
         super("Notes", "notes", "List of notes", null, 150);
@@ -63,7 +70,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
     @Override
     public void showDialog() {
-        Main.debug("showing note dialog");
+        Main.debug("showing note dialog. Note layer: " + noteLayer);
         super.showDialog();
     }
 
@@ -112,6 +119,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         if(newLayer instanceof NoteLayer) {
             Main.debug("note layer added");
             model.setData(((NoteLayer)newLayer).getNotes());
+            noteLayer = (NoteLayer)newLayer;
         }
     }
 
@@ -120,6 +128,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         Main.debug("layer removed " + oldLayer);
         if(oldLayer instanceof NoteLayer) {
             model.clearData();
+            noteLayer = null;
         }
     }
 
@@ -194,61 +203,130 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     class AddCommentAction extends AbstractAction {
 
         public AddCommentAction() {
-            putValue(SHORT_DESCRIPTION,tr("Comment on a note"));
+            putValue(SHORT_DESCRIPTION,tr("Add comment"));
             putValue(NAME, tr("Comment"));
-            putValue(SMALL_ICON, ImageProvider.get("notes", "note_comment"));
+            putValue(SMALL_ICON, ImageProvider.get("notes", ICON_COMMENT));
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Main.debug("add comment action fired");
+            Note note = displayList.getSelectedValue();
+            if (note == null) {
+                JOptionPane.showMessageDialog(Main.map,
+                        "You must select a note first",
+                        "No note selected",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            Object userInput = JOptionPane.showInputDialog(Main.map,
+                    tr("Add comment to note:"),
+                    tr("Add comment"),
+                    JOptionPane.QUESTION_MESSAGE,
+                    ImageProvider.get("notes", ICON_COMMENT),
+                    null,null);
+            if(userInput == null) { //user pressed cancel
+                return;
+            }
+
+            Main.debug("adding comment to note: " + note);
+            noteLayer.addCommentToNote(note, userInput.toString());
         }
     }
 
     class CloseAction extends AbstractAction {
 
         public CloseAction() {
-            putValue(SHORT_DESCRIPTION,tr("Close a note"));
+            putValue(SHORT_DESCRIPTION,tr("Close note"));
             putValue(NAME, tr("Close"));
             putValue(SMALL_ICON, ImageProvider.get("notes", ICON_CLOSED_24));
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
-            model.getSize();
             Main.debug("close action fired");
+            Object userInput = JOptionPane.showInputDialog(Main.map,
+                    tr("Close note with message:"),
+                    tr("Close Note"),
+                    JOptionPane.QUESTION_MESSAGE,
+                    ImageProvider.get("notes", ICON_CLOSED_24),
+                    null,null);
+            if(userInput == null) { //user pressed cancel
+                return;
+            }
+            Note note = displayList.getSelectedValue();
+            noteLayer.closeNote(note, userInput.toString());
         }
     }
 
-    class NewAction extends AbstractAction {
+    class NewAction extends AbstractAction implements MouseListener{
 
         public NewAction() {
-            putValue(SHORT_DESCRIPTION,tr("Create a note"));
+            putValue(SHORT_DESCRIPTION,tr("Create a new note"));
             putValue(NAME, tr("Create"));
             putValue(SMALL_ICON, ImageProvider.get("notes", ICON_NEW_24));
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Main.debug("create action fired");
+            Main.map.mapView.addMouseListener(this);
         }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            Main.map.mapView.removeMouseListener(this);
+            LatLon latlon = Main.map.mapView.getLatLon(e.getPoint().x, e.getPoint().y);
+            Object userInput = JOptionPane.showInputDialog(Main.map,
+                    tr("Create a new note"),
+                    tr("Create note"),
+                    JOptionPane.QUESTION_MESSAGE,
+                    ImageProvider.get("notes", ICON_NEW_24),
+                    null,null);
+            if(userInput == null) { //user pressed cancel
+                return;
+            }
+            if (noteLayer == null) { //there is no notes layer. Create one first
+                Main.map.mapView.addLayer(new NoteLayer());
+            }
+            noteLayer.createNote(latlon, userInput.toString());
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) { }
+
+        @Override
+        public void mouseReleased(MouseEvent e) { }
+
+        @Override
+        public void mouseEntered(MouseEvent e) { }
+
+        @Override
+        public void mouseExited(MouseEvent e) { }
     }
 
     class ReopenAction extends AbstractAction {
 
         public ReopenAction() {
-            putValue(SHORT_DESCRIPTION,tr("Reopen a note"));
+            putValue(SHORT_DESCRIPTION,tr("Reopen note"));
             putValue(NAME, tr("Reopen"));
             putValue(SMALL_ICON, ImageProvider.get("notes", ICON_OPEN_24));
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Main.debug("reopen action fired");
+            Object userInput = JOptionPane.showInputDialog(Main.map,
+                    tr("Reopen note with message:"),
+                    tr("Reopen note"),
+                    JOptionPane.QUESTION_MESSAGE,
+                    ImageProvider.get("notes", ICON_OPEN_24),
+                    null,null);
+            if(userInput == null) { //user pressed cancel
+                return;
+            }
+            Note note = displayList.getSelectedValue();
+            noteLayer.reOpenNote(note, userInput.toString());
         }
     }
 }
