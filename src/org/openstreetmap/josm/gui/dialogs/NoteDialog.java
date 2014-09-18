@@ -37,6 +37,13 @@ import org.openstreetmap.josm.tools.ImageProvider;
  */
 public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
+    public static final String ICON_OPEN_16 = "note_open_16x16.png";
+    public static final String ICON_OPEN_24 = "note_open_24x24.png";
+    public static final String ICON_CLOSED_16 = "note_closed_16x16.png";
+    public static final String ICON_CLOSED_24 = "note_closed_24x24.png";
+    public static final String ICON_NEW_16 = "note_new_16x16.png";
+    public static final String ICON_NEW_24 = "note_new_24x24.png";
+
     private NoteTableModel model;
     private JList<Note> displayList;
     private final AddCommentAction addCommentAction;
@@ -132,11 +139,11 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
                 jlabel.setText(text);
                 ImageIcon icon;
                 if(note.getId() < 0) {
-                    icon = ImageProvider.get("notes", "note_new_16x16.png");
+                    icon = ImageProvider.get("notes", ICON_NEW_16);
                 } else if (note.getState() == State.closed) {
-                    icon = ImageProvider.get("notes", "note_closed_16x16.png");
+                    icon = ImageProvider.get("notes", ICON_CLOSED_16);
                 } else {
-                    icon = ImageProvider.get("notes", "note_open_16x16.png");
+                    icon = ImageProvider.get("notes", ICON_OPEN_16);
                 }
                 jlabel.setIcon(icon);
                 jlabel.setToolTipText("note tooltip");
@@ -204,7 +211,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         public CloseAction() {
             putValue(SHORT_DESCRIPTION,tr("Close a note"));
             putValue(NAME, tr("Close"));
-            putValue(SMALL_ICON, ImageProvider.get("notes", "note_closed_24x24"));
+            putValue(SMALL_ICON, ImageProvider.get("notes", ICON_CLOSED_24));
         }
 
         @Override
@@ -220,7 +227,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         public NewAction() {
             putValue(SHORT_DESCRIPTION,tr("Create a note"));
             putValue(NAME, tr("Create"));
-            putValue(SMALL_ICON, ImageProvider.get("notes", "note_new_24x24.png"));
+            putValue(SMALL_ICON, ImageProvider.get("notes", ICON_NEW_24));
         }
 
         @Override
@@ -235,7 +242,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         public ReopenAction() {
             putValue(SHORT_DESCRIPTION,tr("Reopen a note"));
             putValue(NAME, tr("Reopen"));
-            putValue(SMALL_ICON, ImageProvider.get("notes", "note_open_24x24"));
+            putValue(SMALL_ICON, ImageProvider.get("notes", ICON_OPEN_24));
         }
 
         @Override

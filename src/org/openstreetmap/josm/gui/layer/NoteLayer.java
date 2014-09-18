@@ -25,6 +25,7 @@ import org.openstreetmap.josm.gui.JosmUserIdentityManager;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
+import org.openstreetmap.josm.gui.dialogs.NoteDialog;
 import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
@@ -72,11 +73,11 @@ public class NoteLayer extends AbstractModifiableLayer {
 
             ImageIcon icon = null;
             if (note.getId() < 0) {
-                icon = ImageProvider.get("notes", "note_new_16x16.png");
+                icon = ImageProvider.get("notes", NoteDialog.ICON_NEW_16);
             } else if (note.getState() == State.closed) {
-                icon = ImageProvider.get("notes", "note_closed_16x16.png");
+                icon = ImageProvider.get("notes", NoteDialog.ICON_CLOSED_16);
             } else {
-                icon = ImageProvider.get("notes", "note_open_16x16.png");
+                icon = ImageProvider.get("notes", NoteDialog.ICON_OPEN_16);
             }
             int width = icon.getIconWidth();
             int height = icon.getIconHeight();
@@ -86,7 +87,7 @@ public class NoteLayer extends AbstractModifiableLayer {
 
     @Override
     public Icon getIcon() {
-        return ImageProvider.get("notes", "note_open_16x16.png");
+        return ImageProvider.get("notes", NoteDialog.ICON_OPEN_16);
     }
 
     @Override
