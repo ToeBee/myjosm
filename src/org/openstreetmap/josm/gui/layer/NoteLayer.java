@@ -160,6 +160,7 @@ public class NoteLayer extends AbstractModifiableLayer {
 
     public void createNote(LatLon location, String text) {
         Note note = new Note(location);
+        note.setCreatedAt(new Date());
         note.setId(newNoteId--);
         NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.opened, true);
         note.addComment(comment);
