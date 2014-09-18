@@ -46,6 +46,12 @@ public class NoteLayer extends AbstractModifiableLayer {
         this.notes = notes;
     }
 
+    /** Convenience constructor that creates a layer with an empty note list */
+    public NoteLayer() {
+        super(tr("Notes"));
+        notes = new ArrayList<>();
+    }
+
     @Override
     public boolean isModified() {
         for (Note note : notes) {
