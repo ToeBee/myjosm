@@ -3,8 +3,11 @@ package org.openstreetmap.josm.gui.layer;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,6 +15,7 @@ import java.util.List;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JToolTip;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
@@ -26,15 +30,18 @@ import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.gui.dialogs.NoteDialog;
+import org.openstreetmap.josm.tools.ColorHelper;
 import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * A layer to hold Note objects
  */
-public class NoteLayer extends AbstractModifiableLayer {
+public class NoteLayer extends AbstractModifiableLayer implements MouseListener {
 
     private final List<Note> notes;
     private long newNoteId = -1;
+
+    private Note selectedNote;
 
     /**
      * Create a new note layer with a set of notes
@@ -44,12 +51,20 @@ public class NoteLayer extends AbstractModifiableLayer {
     public NoteLayer(List<Note> notes, String name) {
         super(name);
         this.notes = notes;
+        init();
     }
 
     /** Convenience constructor that creates a layer with an empty note list */
     public NoteLayer() {
         super(tr("Notes"));
         notes = new ArrayList<>();
+        init();
+    }
+
+    private void init() {
+        if(Main.map != null && Main.map.mapView != null) {
+            Main.map.mapView.addMouseListener(this);
+        }
     }
 
     @Override
@@ -88,6 +103,27 @@ public class NoteLayer extends AbstractModifiableLayer {
             int width = icon.getIconWidth();
             int height = icon.getIconHeight();
             g.drawImage(icon.getImage(), p.x - (width / 2), p.y - height, Main.map.mapView);
+        }
+        if (selectedNote != null) {
+            JToolTip toolTip = new JToolTip();
+            toolTip.setTipText(selectedNote.getFirstComment().getText());
+            Point p = mv.getPoint(selectedNote.getLatLon());
+
+            g.setColor(ColorHelper.html2color(Main.pref.get("color.selected")));
+            g.drawRect(p.x - (NoteDialog.ICON_SMALL_SIZE / 2), p.y - NoteDialog.ICON_SMALL_SIZE, NoteDialog.ICON_SMALL_SIZE - 1, NoteDialog.ICON_SMALL_SIZE - 1);
+
+            int tx = p.x + (NoteDialog.ICON_SMALL_SIZE / 2) + 5;
+            int ty = p.y - NoteDialog.ICON_SMALL_SIZE - 1;
+            g.translate(tx, ty);
+
+            for (int x = 0; x < 2; x++) {
+                Dimension d = toolTip.getUI().getPreferredSize(toolTip);
+                d.width = Math.min(d.width, (mv.getWidth() * 1 / 2));
+                toolTip.setSize(d);
+                toolTip.paint(g);
+            }
+
+            g.translate(-tx, -ty);
         }
     }
 
@@ -210,4 +246,46 @@ public class NoteLayer extends AbstractModifiableLayer {
         JosmUserIdentityManager userMgr = JosmUserIdentityManager.getInstance();
         return User.createOsmUser(userMgr.getUserId(), userMgr.getUserName());
     }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        Main.debug("caught mouse clicked event");
+        if (e.getButton() != MouseEvent.BUTTON1) {
+            return;
+        }
+        Point clickPoint = e.getPoint();
+        double snapDistance = 10;
+        double minDistance = Double.MAX_VALUE;
+        Note closestNote = null;
+        for (Note note : notes) {
+            Point notePoint = Main.map.mapView.getPoint(note.getLatLon());
+            //move the note point to the center of the icon where users are most likely to click when selecting
+            notePoint.setLocation(notePoint.getX(), notePoint.getY() - NoteDialog.ICON_SMALL_SIZE / 2);
+            double dist = clickPoint.distanceSq(notePoint);
+            if (minDistance > dist && clickPoint.distance(notePoint) < snapDistance ) {
+                minDistance = dist;
+                closestNote = note;
+            }
+        }
+        if (closestNote == null) {
+            selectedNote = null;
+        } else {
+            selectedNote = closestNote;
+        }
+        Main.debug("selected note: " + selectedNote);
+        Main.map.noteDialog.setSelectedNote(selectedNote);
+        Main.map.mapView.repaint();
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) { }
+
+    @Override
+    public void mouseReleased(MouseEvent e) { }
+
+    @Override
+    public void mouseEntered(MouseEvent e) { }
+
+    @Override
+    public void mouseExited(MouseEvent e) { }
 }

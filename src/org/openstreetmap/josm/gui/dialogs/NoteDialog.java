@@ -48,6 +48,8 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     public static final String ICON_NEW_16 = "note_new_16x16.png";
     public static final String ICON_NEW_24 = "note_new_24x24.png";
     public static final String ICON_COMMENT = "note_comment.png";
+    public static final int ICON_SMALL_SIZE = 16;
+    public static final int ICON_LARGE_SIZE = 24;
 
     private NoteTableModel model;
     private JList<Note> displayList;
@@ -57,6 +59,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     private final ReopenAction reopenAction;
 
     private NoteLayer noteLayer;
+    private Note selectedNote = null;
 
     public NoteDialog() {
         super("Notes", "notes", "List of notes", null, 150);
@@ -98,6 +101,15 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     public void setNoteList(List<Note> noteList) {
         model.setData(noteList);
         this.repaint();
+    }
+
+    public void setSelectedNote(Note note) {
+        selectedNote = note;
+        if(selectedNote == null) {
+            displayList.clearSelection();
+        } else {
+            displayList.setSelectedValue(selectedNote, true);
+        }
     }
 
     @Override
