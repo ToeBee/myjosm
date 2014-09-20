@@ -24,6 +24,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.coor.LatLon;
@@ -82,6 +84,13 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         displayList = new JList<Note>(model);
         displayList.setCellRenderer(new NoteRenderer());
         displayList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        displayList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                selectedNote = displayList.getSelectedValue();
+                updateButtonStates();
+                noteLayer.setSelectedNote(selectedNote);
+            }});
 
         JPanel pane = new JPanel(new BorderLayout());
         pane.add(new JScrollPane(displayList), BorderLayout.CENTER);
@@ -91,7 +100,16 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
                 new SideButton(closeAction, false),
                 new SideButton(newAction, false),
                 new SideButton(reopenAction, false)}));
+        updateButtonStates();
     }
+
+    private void updateButtonStates() {
+        boolean enabled = selectedNote != null;
+        closeAction.setEnabled(enabled);
+        addCommentAction.setEnabled(enabled);
+        reopenAction.setEnabled(enabled);
+    }
+
 
     /**
      * Sets the list of notes to be displayed in the dialog.
@@ -110,6 +128,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         } else {
             displayList.setSelectedValue(selectedNote, true);
         }
+        updateButtonStates();
     }
 
     @Override

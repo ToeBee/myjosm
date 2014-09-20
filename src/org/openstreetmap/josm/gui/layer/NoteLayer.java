@@ -67,6 +67,11 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         }
     }
 
+    public void setSelectedNote(Note note) {
+        selectedNote = note;
+        Main.map.mapView.repaint();
+    }
+
     @Override
     public boolean isModified() {
         for (Note note : notes) {
