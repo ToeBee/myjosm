@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.gui.dialogs.NoteDialog;
+import org.openstreetmap.josm.io.XmlWriter;
 import org.openstreetmap.josm.tools.ColorHelper;
 import org.openstreetmap.josm.tools.ImageProvider;
 
@@ -110,8 +112,32 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
             g.drawImage(icon.getImage(), p.x - (width / 2), p.y - height, Main.map.mapView);
         }
         if (selectedNote != null) {
+            StringBuilder sb = new StringBuilder("<html>");
+            List<NoteComment> comments = selectedNote.getComments();
+            String sep = "";
+            SimpleDateFormat dayFormat = new SimpleDateFormat("MMM d, yyyy");
+            for (NoteComment comment : comments) {
+                String commentText = comment.getText();
+                //closing a note creates an empty comment that we don't want to show
+                if (commentText != null && commentText.trim().length() > 0) {
+                    sb.append(sep);
+                    String userName = comment.getUser().getName();
+                    if (userName == null || userName.trim().length() == 0) {
+                        userName = "&lt;Anonymous&gt;";
+                    }
+                    sb.append(userName);
+                    sb.append(" on ");
+                    sb.append(dayFormat.format(comment.getCommentTimestamp()));
+                    sb.append(":<br/>");
+                    String htmlText = XmlWriter.encode(comment.getText(), true);
+                    htmlText = htmlText.replace("&#xA;", "<br/>"); //encode method leaves us with entity instead of \n
+                    sb.append(htmlText);
+                }
+                sep = "<hr/>";
+            }
+            sb.append("</html>");
             JToolTip toolTip = new JToolTip();
-            toolTip.setTipText(selectedNote.getFirstComment().getText());
+            toolTip.setTipText(sb.toString());
             Point p = mv.getPoint(selectedNote.getLatLon());
 
             g.setColor(ColorHelper.html2color(Main.pref.get("color.selected")));
@@ -121,12 +147,10 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
             int ty = p.y - NoteDialog.ICON_SMALL_SIZE - 1;
             g.translate(tx, ty);
 
-            for (int x = 0; x < 2; x++) {
-                Dimension d = toolTip.getUI().getPreferredSize(toolTip);
-                d.width = Math.min(d.width, (mv.getWidth() * 1 / 2));
-                toolTip.setSize(d);
-                toolTip.paint(g);
-            }
+            Dimension d = toolTip.getUI().getPreferredSize(toolTip);
+            d.width = Math.min(d.width, (mv.getWidth() * 1 / 2));
+            toolTip.setSize(d);
+            toolTip.paint(g);
 
             g.translate(-tx, -ty);
         }
