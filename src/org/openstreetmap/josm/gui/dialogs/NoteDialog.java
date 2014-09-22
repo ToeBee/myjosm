@@ -222,8 +222,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         public void setData(List<Note> noteList) {
             data.clear();
             data.addAll(noteList);
-            fireIntervalAdded(this, 0, getSize());
-            Main.debug("set note list and fired intervalAdded. List size: " + data.size());
+            fireContentsChanged(this, 0, noteList.size());
         }
 
         public void clearData() {
