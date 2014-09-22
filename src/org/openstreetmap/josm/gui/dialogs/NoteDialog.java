@@ -121,7 +121,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
     public void setSelectedNote(Note note) {
         selectedNote = note;
-        if(selectedNote == null) {
+        if (selectedNote == null) {
             displayList.clearSelection();
         } else {
             displayList.setSelectedValue(selectedNote, true);
@@ -145,7 +145,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     @Override
     public void layerAdded(Layer newLayer) {
         Main.debug("layer added: " + newLayer);
-        if(newLayer instanceof NoteLayer) {
+        if (newLayer instanceof NoteLayer) {
             Main.debug("note layer added");
             model.setData(((NoteLayer)newLayer).getNotes());
             noteLayer = (NoteLayer)newLayer;
@@ -155,7 +155,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     @Override
     public void layerRemoved(Layer oldLayer) {
         Main.debug("layer removed " + oldLayer);
-        if(oldLayer instanceof NoteLayer) {
+        if (oldLayer instanceof NoteLayer) {
             model.clearData();
             noteLayer = null;
             if (Main.map.mapMode instanceof AddNoteAction) {
@@ -173,13 +173,13 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         public Component getListCellRendererComponent(JList<? extends Note> list, Note note, int index,
                 boolean isSelected, boolean cellHasFocus) {
             Component comp = defaultListCellRenderer.getListCellRendererComponent(list, note, index, isSelected, cellHasFocus);
-            if(note != null && comp instanceof JLabel) {
+            if (note != null && comp instanceof JLabel) {
                 String text = note.getFirstComment().getUser().getName()
                         + " " + sdf.format(note.getCreatedAt()) + " " + note.getFirstComment().getText();
                 JLabel jlabel = (JLabel)comp;
                 jlabel.setText(text);
                 ImageIcon icon;
-                if(note.getId() < 0) {
+                if (note.getId() < 0) {
                     icon = ImageProvider.get("notes", ICON_NEW_16);
                 } else if (note.getState() == State.closed) {
                     icon = ImageProvider.get("notes", ICON_CLOSED_16);
@@ -256,7 +256,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
                     JOptionPane.QUESTION_MESSAGE,
                     ImageProvider.get("notes", ICON_COMMENT),
                     null,null);
-            if(userInput == null) { //user pressed cancel
+            if (userInput == null) { //user pressed cancel
                 return;
             }
 
@@ -282,7 +282,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
                     JOptionPane.QUESTION_MESSAGE,
                     ImageProvider.get("notes", ICON_CLOSED_24),
                     null,null);
-            if(userInput == null) { //user pressed cancel
+            if (userInput == null) { //user pressed cancel
                 return;
             }
             Note note = displayList.getSelectedValue();
@@ -325,7 +325,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
                     JOptionPane.QUESTION_MESSAGE,
                     ImageProvider.get("notes", ICON_OPEN_24),
                     null,null);
-            if(userInput == null) { //user pressed cancel
+            if (userInput == null) { //user pressed cancel
                 return;
             }
             Note note = displayList.getSelectedValue();

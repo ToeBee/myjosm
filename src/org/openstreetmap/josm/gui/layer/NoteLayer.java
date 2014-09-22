@@ -64,7 +64,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
     }
 
     private void init() {
-        if(Main.map != null && Main.map.mapView != null) {
+        if (Main.map != null && Main.map.mapView != null) {
             Main.map.mapView.addMouseListener(this);
         }
     }
@@ -221,7 +221,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
             if (!notes.contains(newNote)) {
                 notes.add(newNote);
             }
-            if(newNote.getId() <= newNoteId) {
+            if (newNote.getId() <= newNoteId) {
                 newNoteId = newNote.getId() - 1;
             }
         }
@@ -240,7 +240,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
     }
 
     public void addCommentToNote(Note note, String text) {
-        if(!notes.contains(note)) {
+        if (!notes.contains(note)) {
             throw new IllegalArgumentException("Note to modify must be in layer");
         }
         NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.commented, true);
@@ -249,7 +249,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
     }
 
     public void closeNote(Note note, String text) {
-        if(!notes.contains(note)) {
+        if (!notes.contains(note)) {
             throw new IllegalArgumentException("Note to close must be in layer");
         }
         NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.closed, true);
@@ -258,7 +258,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
     }
 
     public void reOpenNote(Note note, String text) {
-        if(!notes.contains(note)) {
+        if (!notes.contains(note)) {
             throw new IllegalArgumentException("Note to reopen must be in layer");
         }
         NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.reopened, true);
