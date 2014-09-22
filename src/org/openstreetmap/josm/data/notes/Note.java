@@ -123,4 +123,10 @@ public class Note {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "Note [id=" + id + ", latLon=" + latLon + ", createdAt=" + createdAt + ", closedAt=" + closedAt
+                + ", state=" + state + ", comments:" + comments.size() + "]";
+    }
 }

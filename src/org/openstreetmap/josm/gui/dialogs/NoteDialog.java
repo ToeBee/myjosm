@@ -6,8 +6,6 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +26,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.actions.mapmode.AddNoteAction;
 import org.openstreetmap.josm.data.notes.Note;
 import org.openstreetmap.josm.data.notes.Note.State;
 import org.openstreetmap.josm.gui.MapView;
@@ -160,6 +158,9 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         if(oldLayer instanceof NoteLayer) {
             model.clearData();
             noteLayer = null;
+            if (Main.map.mapMode instanceof AddNoteAction) {
+                Main.map.selectMapMode(Main.map.mapModeSelect);
+            }
         }
     }
 
@@ -290,7 +291,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         }
     }
 
-    class NewAction extends AbstractAction implements MouseListener{
+    class NewAction extends AbstractAction {
 
         public NewAction() {
             putValue(SHORT_DESCRIPTION,tr("Create a new note"));
@@ -301,39 +302,11 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             Main.debug("create action fired");
-            Main.map.mapView.addMouseListener(this);
-        }
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            Main.map.mapView.removeMouseListener(this);
-            LatLon latlon = Main.map.mapView.getLatLon(e.getPoint().x, e.getPoint().y);
-            Object userInput = JOptionPane.showInputDialog(Main.map,
-                    tr("Create a new note"),
-                    tr("Create note"),
-                    JOptionPane.QUESTION_MESSAGE,
-                    ImageProvider.get("notes", ICON_NEW_24),
-                    null,null);
-            if(userInput == null) { //user pressed cancel
-                return;
-            }
             if (noteLayer == null) { //there is no notes layer. Create one first
                 Main.map.mapView.addLayer(new NoteLayer());
             }
-            noteLayer.createNote(latlon, userInput.toString());
+            Main.map.selectMapMode(new AddNoteAction(Main.map, noteLayer));
         }
-
-        @Override
-        public void mousePressed(MouseEvent e) { }
-
-        @Override
-        public void mouseReleased(MouseEvent e) { }
-
-        @Override
-        public void mouseEntered(MouseEvent e) { }
-
-        @Override
-        public void mouseExited(MouseEvent e) { }
     }
 
     class ReopenAction extends AbstractAction {
