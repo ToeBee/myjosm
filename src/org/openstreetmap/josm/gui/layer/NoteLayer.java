@@ -150,10 +150,14 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
             int ty = p.y - NoteDialog.ICON_SMALL_SIZE - 1;
             g.translate(tx, ty);
 
-            Dimension d = toolTip.getUI().getPreferredSize(toolTip);
-            d.width = Math.min(d.width, (mv.getWidth() * 1 / 2));
-            toolTip.setSize(d);
-            toolTip.paint(g);
+            //Carried over from the OSB plugin. Not entirely sure why it is needed
+            //but without it, the tooltip doesn't get sized correctly
+            for (int x = 0; x < 2; x++) {
+                Dimension d = toolTip.getUI().getPreferredSize(toolTip);
+                d.width = Math.min(d.width, (mv.getWidth() * 1 / 2));
+                toolTip.setSize(d);
+                toolTip.paint(g);
+            }
 
             g.translate(-tx, -ty);
         }
