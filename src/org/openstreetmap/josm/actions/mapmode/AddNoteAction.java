@@ -76,9 +76,9 @@ public class AddNoteAction extends MapMode {
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
                 ImageProvider.get("notes", NoteDialog.ICON_NEW_24));
-        if(option == JOptionPane.OK_OPTION) {
+        if (option == JOptionPane.OK_OPTION) {
             String input = textArea.getText();
-            if(input != null && !input.isEmpty()) {
+            if (input != null && !input.isEmpty()) {
                 noteLayer.createNote(latlon, input);
             } else {
                 Notification notification = new Notification("You must enter a comment to create a new note");
