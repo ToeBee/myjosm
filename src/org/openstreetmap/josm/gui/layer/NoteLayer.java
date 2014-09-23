@@ -69,6 +69,9 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         }
     }
 
+    /** Set a selected note. Causes note comments to be drawn on screen
+     * @param note Selected note. Clears selection if null
+     */
     public void setSelectedNote(Note note) {
         selectedNote = note;
         Main.map.mapView.repaint();
@@ -229,6 +232,11 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         Main.debug("notes in layer: " + notes.size());
     }
 
+    /**
+     * Create a new note
+     * @param location Location of note
+     * @param text Required comment with which to open the note
+     */
     public void createNote(LatLon location, String text) {
         Note note = new Note(location);
         note.setCreatedAt(new Date());
@@ -239,6 +247,11 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         dataUpdated();
     }
 
+    /**
+     * Add a new comment to an existing note
+     * @param note Note to add comment to. Must already exist in the layer
+     * @param text Comment to add
+     */
     public void addCommentToNote(Note note, String text) {
         if (!notes.contains(note)) {
             throw new IllegalArgumentException("Note to modify must be in layer");
@@ -248,6 +261,11 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         dataUpdated();
     }
 
+    /**
+     * Close note with comment
+     * @param note Note to close. Must already exist in the layer
+     * @param text Comment to attach to close action, if desired
+     */
     public void closeNote(Note note, String text) {
         if (!notes.contains(note)) {
             throw new IllegalArgumentException("Note to close must be in layer");
@@ -257,6 +275,11 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         dataUpdated();
     }
 
+    /**
+     * Reopen a closed note.
+     * @param note Note to reopen. Must already exist in the layer
+     * @param text Comment to attach to the reopen action, if desired
+     */
     public void reOpenNote(Note note, String text) {
         if (!notes.contains(note)) {
             throw new IllegalArgumentException("Note to reopen must be in layer");

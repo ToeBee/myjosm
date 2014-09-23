@@ -41,14 +41,23 @@ import org.openstreetmap.josm.tools.ImageProvider;
  */
 public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
+    /** File name for 16x16 unresolved note icon */
     public static final String ICON_OPEN_16 = "note_open_16x16.png";
+    /** File name for 24x24 unresolved note icon */
     public static final String ICON_OPEN_24 = "note_open_24x24.png";
+    /** File name for 16x16 resolved note icon */
     public static final String ICON_CLOSED_16 = "note_closed_16x16.png";
+    /** File name for 24x24 resolved note icon */
     public static final String ICON_CLOSED_24 = "note_closed_24x24.png";
+    /** File name for 16x16 newly created note icon */
     public static final String ICON_NEW_16 = "note_new_16x16.png";
+    /** File name for 24x24 newly created note icon */
     public static final String ICON_NEW_24 = "note_new_24x24.png";
+    /** File name for adding a comment to a note */
     public static final String ICON_COMMENT = "note_comment.png";
+    /** Small icon size for use in graphics calculations */
     public static final int ICON_SMALL_SIZE = 16;
+    /** Large icon size for use in graphics calculations */
     public static final int ICON_LARGE_SIZE = 24;
 
     private NoteTableModel model;
@@ -61,6 +70,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     private NoteLayer noteLayer;
     private Note selectedNote = null;
 
+    /** Creates a new toggle dialog for notes */
     public NoteDialog() {
         super("Notes", "notes", "List of notes", null, 150);
         Main.debug("constructed note dialog");
@@ -119,6 +129,11 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         this.repaint();
     }
 
+    /**
+     * Set the selected note. Causes the dialog to scroll to and highlight
+     * the given note. Clears the selection if null.
+     * @param note Note to select
+     */
     public void setSelectedNote(Note note) {
         selectedNote = note;
         if (selectedNote == null) {
