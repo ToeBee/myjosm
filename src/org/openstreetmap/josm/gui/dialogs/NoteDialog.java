@@ -83,7 +83,6 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
     @Override
     public void showDialog() {
-        Main.debug("showing note dialog. Note layer: " + noteLayer);
         super.showDialog();
     }
 
@@ -179,8 +178,8 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
     @Override
     public void layerRemoved(Layer oldLayer) {
-        Main.debug("layer removed " + oldLayer);
         if (oldLayer instanceof NoteLayer) {
+            Main.debug("note layer removed. Clearing everything");
             model.clearData();
             noteLayer = null;
             if (Main.map.mapMode instanceof AddNoteAction) {
@@ -266,7 +265,6 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Main.debug("add comment action fired");
             Note note = displayList.getSelectedValue();
             if (note == null) {
                 JOptionPane.showMessageDialog(Main.map,
@@ -284,8 +282,6 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
             if (userInput == null) { //user pressed cancel
                 return;
             }
-
-            Main.debug("adding comment to note: " + note);
             noteLayer.addCommentToNote(note, userInput.toString());
         }
     }
@@ -300,7 +296,6 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Main.debug("close action fired");
             Object userInput = JOptionPane.showInputDialog(Main.map,
                     tr("Close note with message:"),
                     tr("Close Note"),
@@ -325,7 +320,6 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Main.debug("create action fired");
             if (noteLayer == null) { //there is no notes layer. Create one first
                 Main.map.mapView.addLayer(new NoteLayer());
             }
@@ -343,7 +337,6 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Main.debug("reopen action fired");
             Object userInput = JOptionPane.showInputDialog(Main.map,
                     tr("Reopen note with message:"),
                     tr("Reopen note"),

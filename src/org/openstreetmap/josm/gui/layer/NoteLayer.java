@@ -248,6 +248,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         note.setId(newNoteId--);
         NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.opened, true);
         note.addComment(comment);
+        Main.debug("Created note {0} with comment: {1}", note.getId(), text);
         notes.add(note);
         dataUpdated();
     }
@@ -264,6 +265,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         if (note.getState() == State.closed) {
             throw new IllegalStateException("Cannot add a comment to a closed note");
         }
+        Main.debug("Adding comment to note {0}: {1}", note.getId(), text);
         NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.commented, true);
         note.addComment(comment);
         dataUpdated();
@@ -281,6 +283,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         if (note.getState() != State.open) {
             throw new IllegalStateException("Cannot close a note that isn't open");
         }
+        Main.debug("closing note {0} with comment: {1}", note.getId(), text);
         NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.closed, true);
         note.addComment(comment);
         note.setState(State.closed);
@@ -300,6 +303,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         if (note.getState() != State.closed) {
             throw new IllegalStateException("Cannot reopen a note that isn't closed");
         }
+        Main.debug("reopening note {0} with comment: {1}", note.getId(), text);
         NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.reopened, true);
         note.addComment(comment);
         note.setState(State.open);
@@ -318,7 +322,6 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        Main.debug("caught mouse clicked event");
         if (e.getButton() != MouseEvent.BUTTON1) {
             return;
         }
@@ -340,8 +343,8 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
             selectedNote = null;
         } else {
             selectedNote = closestNote;
+            Main.debug("Selected note: " + selectedNote.getId());
         }
-        Main.debug("selected note: " + selectedNote);
         Main.map.noteDialog.setSelectedNote(selectedNote);
         Main.map.mapView.repaint();
     }
