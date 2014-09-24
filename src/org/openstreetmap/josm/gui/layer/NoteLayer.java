@@ -158,7 +158,6 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
                 toolTip.setSize(d);
                 toolTip.paint(g);
             }
-
             g.translate(-tx, -ty);
         }
     }
