@@ -104,9 +104,9 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         pane.add(new JScrollPane(displayList), BorderLayout.CENTER);
 
         createLayout(pane, false, Arrays.asList(new SideButton[]{
+                new SideButton(newAction, false),
                 new SideButton(addCommentAction, false),
                 new SideButton(closeAction, false),
-                new SideButton(newAction, false),
                 new SideButton(reopenAction, false)}));
         updateButtonStates();
     }
@@ -189,8 +189,8 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
                 boolean isSelected, boolean cellHasFocus) {
             Component comp = defaultListCellRenderer.getListCellRendererComponent(list, note, index, isSelected, cellHasFocus);
             if (note != null && comp instanceof JLabel) {
-                String text = note.getFirstComment().getUser().getName()
-                        + " " + sdf.format(note.getCreatedAt()) + " " + note.getFirstComment().getText();
+                String text = note.getFirstComment().getText();
+                String toolTipText = note.getFirstComment().getUser().getName() + " @ " + sdf.format(note.getCreatedAt());
                 JLabel jlabel = (JLabel)comp;
                 jlabel.setText(text);
                 ImageIcon icon;
@@ -202,7 +202,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
                     icon = ImageProvider.get("notes", ICON_OPEN_16);
                 }
                 jlabel.setIcon(icon);
-                jlabel.setToolTipText("note tooltip");
+                jlabel.setToolTipText(toolTipText);
             }
             return comp;
         }
