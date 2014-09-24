@@ -244,6 +244,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
     public void createNote(LatLon location, String text) {
         Note note = new Note(location);
         note.setCreatedAt(new Date());
+        note.setState(State.open);
         note.setId(newNoteId--);
         NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.opened, true);
         note.addComment(comment);
@@ -260,6 +261,9 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         if (!notes.contains(note)) {
             throw new IllegalArgumentException("Note to modify must be in layer");
         }
+        if (note.getState() == State.closed) {
+            throw new IllegalStateException("Cannot add a comment to a closed note");
+        }
         NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.commented, true);
         note.addComment(comment);
         dataUpdated();
@@ -274,8 +278,13 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         if (!notes.contains(note)) {
             throw new IllegalArgumentException("Note to close must be in layer");
         }
+        if (note.getState() != State.open) {
+            throw new IllegalStateException("Cannot close a note that isn't open");
+        }
         NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.closed, true);
         note.addComment(comment);
+        note.setState(State.closed);
+        note.setClosedAt(new Date());
         dataUpdated();
     }
 
@@ -288,8 +297,12 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         if (!notes.contains(note)) {
             throw new IllegalArgumentException("Note to reopen must be in layer");
         }
+        if (note.getState() != State.closed) {
+            throw new IllegalStateException("Cannot reopen a note that isn't closed");
+        }
         NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.reopened, true);
         note.addComment(comment);
+        note.setState(State.open);
         dataUpdated();
     }
 
