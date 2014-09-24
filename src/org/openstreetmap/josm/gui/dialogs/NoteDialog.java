@@ -78,7 +78,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         closeAction = new CloseAction();
         newAction = new NewAction();
         reopenAction = new ReopenAction();
-        build();
+        buildDialog();
     }
 
     @Override
@@ -86,7 +86,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         super.showDialog();
     }
 
-    private void build() {
+    private void buildDialog() {
         model = new NoteTableModel();
         displayList = new JList<Note>(model);
         displayList.setCellRenderer(new NoteRenderer());
@@ -126,33 +126,6 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         }
     }
 
-
-    /**
-     * Sets the list of notes to be displayed in the dialog.
-     * The dialog should match the notes displayed in the note layer.
-     * @param noteList List of notes to display
-     */
-    public void setNoteList(List<Note> noteList) {
-        model.setData(noteList);
-        updateButtonStates();
-        this.repaint();
-    }
-
-    /**
-     * Set the selected note. Causes the dialog to scroll to and highlight
-     * the given note. Clears the selection if null.
-     * @param note Note to select
-     */
-    public void setSelectedNote(Note note) {
-        selectedNote = note;
-        if (selectedNote == null) {
-            displayList.clearSelection();
-        } else {
-            displayList.setSelectedValue(selectedNote, true);
-        }
-        updateButtonStates();
-    }
-
     @Override
     public void showNotify() {
         MapView.addLayerChangeListener(this);
@@ -188,6 +161,32 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         }
     }
 
+    /**
+     * Sets the list of notes to be displayed in the dialog.
+     * The dialog should match the notes displayed in the note layer.
+     * @param noteList List of notes to display
+     */
+    public void setNoteList(List<Note> noteList) {
+        model.setData(noteList);
+        updateButtonStates();
+        this.repaint();
+    }
+
+    /**
+     * Set the selected note. Causes the dialog to scroll to and highlight
+     * the given note. Clears the selection if null.
+     * @param note Note to select
+     */
+    public void setSelectedNote(Note note) {
+        selectedNote = note;
+        if (selectedNote == null) {
+            displayList.clearSelection();
+        } else {
+            displayList.setSelectedValue(selectedNote, true);
+        }
+        updateButtonStates();
+    }
+
     private class NoteRenderer implements ListCellRenderer<Note> {
 
         private DefaultListCellRenderer defaultListCellRenderer = new DefaultListCellRenderer();
@@ -215,7 +214,6 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
             }
             return comp;
         }
-
     }
 
     class NoteTableModel extends AbstractListModel<Note> {
