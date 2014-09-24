@@ -112,10 +112,19 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     }
 
     private void updateButtonStates() {
-        boolean enabled = selectedNote != null;
-        closeAction.setEnabled(enabled);
-        addCommentAction.setEnabled(enabled);
-        reopenAction.setEnabled(enabled);
+        if (selectedNote == null) {
+            closeAction.setEnabled(false);
+            addCommentAction.setEnabled(false);
+            reopenAction.setEnabled(false);
+        } else if (selectedNote.getState() == State.open){
+            closeAction.setEnabled(true);
+            addCommentAction.setEnabled(true);
+            reopenAction.setEnabled(false);
+        } else { //note is closed
+            closeAction.setEnabled(false);
+            addCommentAction.setEnabled(false);
+            reopenAction.setEnabled(true);
+        }
     }
 
 
@@ -126,6 +135,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
      */
     public void setNoteList(List<Note> noteList) {
         model.setData(noteList);
+        updateButtonStates();
         this.repaint();
     }
 
