@@ -198,7 +198,11 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
             Component comp = defaultListCellRenderer.getListCellRendererComponent(list, note, index, isSelected, cellHasFocus);
             if (note != null && comp instanceof JLabel) {
                 String text = note.getFirstComment().getText();
-                String toolTipText = note.getFirstComment().getUser().getName() + " @ " + sdf.format(note.getCreatedAt());
+                String userName = note.getFirstComment().getUser().getName();
+                if (userName == null || userName.isEmpty()) {
+                    userName = "<Anonymous>";
+                }
+                String toolTipText = userName + " @ " + sdf.format(note.getCreatedAt());
                 JLabel jlabel = (JLabel)comp;
                 jlabel.setText(text);
                 ImageIcon icon;
