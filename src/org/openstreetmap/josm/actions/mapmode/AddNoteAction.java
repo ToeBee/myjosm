@@ -12,10 +12,10 @@ import javax.swing.JTextArea;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.data.osm.NoteData;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.Notification;
 import org.openstreetmap.josm.gui.dialogs.NoteDialog;
-import org.openstreetmap.josm.gui.layer.NoteLayer;
 import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
@@ -24,21 +24,21 @@ import org.openstreetmap.josm.tools.ImageProvider;
  */
 public class AddNoteAction extends MapMode {
 
-    private NoteLayer noteLayer;
+    private NoteData noteData;
 
     /**
      * Construct a new map mode.
      * @param mapFrame Map frame to pass to the superconstructor
-     * @param layer Note layer. May not be null
+     * @param data Note data container. Must not be null
      */
-    public AddNoteAction(MapFrame mapFrame, NoteLayer layer) {
+    public AddNoteAction(MapFrame mapFrame, NoteData data) {
         super(tr("Add a new Note"), "addnote.png",
             tr("Add note mode"),
             mapFrame, ImageProvider.getCursor("crosshair", "create_note"));
-        if (layer == null) {
-            throw new IllegalArgumentException("Note layer must not be null");
+        if (data == null) {
+            throw new IllegalArgumentException("Note data must not be null");
         }
-        noteLayer = layer;
+        noteData = data;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class AddNoteAction extends MapMode {
         if (option == JOptionPane.OK_OPTION) {
             String input = textArea.getText();
             if (input != null && !input.isEmpty()) {
-                noteLayer.createNote(latlon, input);
+                noteData.createNote(latlon, input);
             } else {
                 Notification notification = new Notification("You must enter a comment to create a new note");
                 notification.setIcon(JOptionPane.WARNING_MESSAGE);

@@ -29,6 +29,7 @@ import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.mapmode.AddNoteAction;
 import org.openstreetmap.josm.data.notes.Note;
 import org.openstreetmap.josm.data.notes.Note.State;
+import org.openstreetmap.josm.data.osm.NoteData;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.SideButton;
@@ -67,8 +68,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     private final NewAction newAction;
     private final ReopenAction reopenAction;
 
-    private NoteLayer noteLayer;
-    private Note selectedNote = null;
+    private NoteData noteData;
 
     /** Creates a new toggle dialog for notes */
     public NoteDialog() {
@@ -94,9 +94,10 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         displayList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                selectedNote = displayList.getSelectedValue();
+                if (noteData != null) { //happens when layer is deleted while note selected
+                    noteData.setSelectedNote(displayList.getSelectedValue());
+                }
                 updateButtonStates();
-                noteLayer.setSelectedNote(selectedNote);
             }});
 
         JPanel pane = new JPanel(new BorderLayout());
@@ -111,11 +112,11 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     }
 
     private void updateButtonStates() {
-        if (selectedNote == null) {
+        if (noteData == null || noteData.getSelectedNote() == null) {
             closeAction.setEnabled(false);
             addCommentAction.setEnabled(false);
             reopenAction.setEnabled(false);
-        } else if (selectedNote.getState() == State.open){
+        } else if (noteData.getSelectedNote().getState() == State.open){
             closeAction.setEnabled(true);
             addCommentAction.setEnabled(true);
             reopenAction.setEnabled(false);
@@ -144,8 +145,8 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         Main.debug("layer added: " + newLayer);
         if (newLayer instanceof NoteLayer) {
             Main.debug("note layer added");
-            model.setData(((NoteLayer)newLayer).getNotes());
-            noteLayer = (NoteLayer)newLayer;
+            noteData = ((NoteLayer)newLayer).getNoteData();
+            model.setData(noteData.getNotes());
         }
     }
 
@@ -153,8 +154,8 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     public void layerRemoved(Layer oldLayer) {
         if (oldLayer instanceof NoteLayer) {
             Main.debug("note layer removed. Clearing everything");
+            noteData = null;
             model.clearData();
-            noteLayer = null;
             if (Main.map.mapMode instanceof AddNoteAction) {
                 Main.map.selectMapMode(Main.map.mapModeSelect);
             }
@@ -173,16 +174,14 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     }
 
     /**
-     * Set the selected note. Causes the dialog to scroll to and highlight
-     * the given note. Clears the selection if null.
-     * @param note Note to select
+     * Notify the dialog that the note selection has changed.
+     * Causes it to update or clear its selection in the UI.
      */
-    public void setSelectedNote(Note note) {
-        selectedNote = note;
-        if (selectedNote == null) {
+    public void selectionChanged() {
+        if (noteData == null || noteData.getSelectedNote() == null) {
             displayList.clearSelection();
         } else {
-            displayList.setSelectedValue(selectedNote, true);
+            displayList.setSelectedValue(noteData.getSelectedNote(), true);
         }
         updateButtonStates();
     }
@@ -225,11 +224,6 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
         public NoteTableModel() {
             data = new ArrayList<Note>();
-            if (Main.isDisplayingMapView()) {
-               List<NoteLayer> layers = Main.map.mapView.getLayersOfType(NoteLayer.class);
-               NoteLayer layer = layers.get(0);
-               data = layer.getNotes();
-            }
         }
 
         @Override
@@ -252,8 +246,9 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         }
 
         public void clearData() {
+            displayList.clearSelection();
             data.clear();
-            fireIntervalAdded(this, 0, getSize());
+            fireIntervalRemoved(this, 0, getSize());
         }
     }
 
@@ -284,7 +279,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
             if (userInput == null) { //user pressed cancel
                 return;
             }
-            noteLayer.addCommentToNote(note, userInput.toString());
+            noteData.addCommentToNote(note, userInput.toString());
         }
     }
 
@@ -308,7 +303,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
                 return;
             }
             Note note = displayList.getSelectedValue();
-            noteLayer.closeNote(note, userInput.toString());
+            noteData.closeNote(note, userInput.toString());
         }
     }
 
@@ -322,10 +317,10 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (noteLayer == null) { //there is no notes layer. Create one first
+            if (noteData == null) { //there is no notes layer. Create one first
                 Main.map.mapView.addLayer(new NoteLayer());
             }
-            Main.map.selectMapMode(new AddNoteAction(Main.map, noteLayer));
+            Main.map.selectMapMode(new AddNoteAction(Main.map, noteData));
         }
     }
 
@@ -349,7 +344,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
                 return;
             }
             Note note = displayList.getSelectedValue();
-            noteLayer.reOpenNote(note, userInput.toString());
+            noteData.reOpenNote(note, userInput.toString());
         }
     }
 }

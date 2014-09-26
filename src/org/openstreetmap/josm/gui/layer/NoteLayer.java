@@ -10,7 +10,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.swing.Action;
@@ -20,13 +19,11 @@ import javax.swing.JToolTip;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
-import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.notes.Note;
 import org.openstreetmap.josm.data.notes.Note.State;
 import org.openstreetmap.josm.data.notes.NoteComment;
-import org.openstreetmap.josm.data.osm.User;
+import org.openstreetmap.josm.data.osm.NoteData;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
-import org.openstreetmap.josm.gui.JosmUserIdentityManager;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
@@ -40,10 +37,7 @@ import org.openstreetmap.josm.tools.ImageProvider;
  */
 public class NoteLayer extends AbstractModifiableLayer implements MouseListener {
 
-    private final List<Note> notes;
-    private long newNoteId = -1;
-
-    private Note selectedNote;
+    private final NoteData noteData;
 
     /**
      * Create a new note layer with a set of notes
@@ -52,14 +46,14 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
      */
     public NoteLayer(List<Note> notes, String name) {
         super(name);
-        this.notes = notes;
+        noteData = new NoteData(notes);
         init();
     }
 
     /** Convenience constructor that creates a layer with an empty note list */
     public NoteLayer() {
         super(tr("Notes"));
-        notes = new ArrayList<>();
+        noteData = new NoteData();
         init();
     }
 
@@ -69,17 +63,17 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         }
     }
 
-    /** Set a selected note. Causes note comments to be drawn on screen
-     * @param note Selected note. Clears selection if null
+    /**
+     * Returns the note data store being used by this layer
+     * @return noteData containing layer notes
      */
-    public void setSelectedNote(Note note) {
-        selectedNote = note;
-        Main.map.mapView.repaint();
+    public NoteData getNoteData() {
+        return noteData;
     }
 
     @Override
     public boolean isModified() {
-        for (Note note : notes) {
+        for (Note note : noteData.getNotes()) {
             if (note.getId() < 0) { //notes with negative IDs are new
                 return true;
             }
@@ -99,7 +93,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
 
     @Override
     public void paint(Graphics2D g, MapView mv, Bounds box) {
-        for (Note note : notes) {
+        for (Note note : noteData.getNotes()) {
             Point p = mv.getPoint(note.getLatLon());
 
             ImageIcon icon = null;
@@ -114,9 +108,9 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
             int height = icon.getIconHeight();
             g.drawImage(icon.getImage(), p.x - (width / 2), p.y - height, Main.map.mapView);
         }
-        if (selectedNote != null) {
+        if (noteData.getSelectedNote() != null) {
             StringBuilder sb = new StringBuilder("<html>");
-            List<NoteComment> comments = selectedNote.getComments();
+            List<NoteComment> comments = noteData.getSelectedNote().getComments();
             String sep = "";
             SimpleDateFormat dayFormat = new SimpleDateFormat("MMM d, yyyy");
             for (NoteComment comment : comments) {
@@ -141,7 +135,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
             sb.append("</html>");
             JToolTip toolTip = new JToolTip();
             toolTip.setTipText(sb.toString());
-            Point p = mv.getPoint(selectedNote.getLatLon());
+            Point p = mv.getPoint(noteData.getSelectedNote().getLatLon());
 
             g.setColor(ColorHelper.html2color(Main.pref.get("color.selected")));
             g.drawRect(p.x - (NoteDialog.ICON_SMALL_SIZE / 2), p.y - NoteDialog.ICON_SMALL_SIZE, NoteDialog.ICON_SMALL_SIZE - 1, NoteDialog.ICON_SMALL_SIZE - 1);
@@ -169,7 +163,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
 
     @Override
     public String getToolTipText() {
-        return notes.size() + " " + tr("Notes");
+        return noteData.getNotes().size() + " " + tr("Notes");
     }
 
     @Override
@@ -193,7 +187,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         sb.append("\n");
         sb.append(tr("Total notes:"));
         sb.append(" ");
-        sb.append(notes.size());
+        sb.append(noteData.getNotes().size());
         sb.append("\n");
         sb.append(tr("Changes need uploading?"));
         sb.append(" ");
@@ -210,115 +204,6 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         return actions.toArray(new Action[actions.size()]);
     }
 
-    /**
-     * Returns the notes stored in this layer
-     * @return List of Note objects
-     */
-    public List<Note> getNotes() {
-        return notes;
-    }
-
-    /**
-     * Add notes to the layer. It only adds a note if the ID is not already present
-     * @param newNotes A list of notes to add
-     */
-    public void addNotes(List<Note> newNotes) {
-        for (Note newNote : newNotes) {
-            if (!notes.contains(newNote)) {
-                notes.add(newNote);
-            }
-            if (newNote.getId() <= newNoteId) {
-                newNoteId = newNote.getId() - 1;
-            }
-        }
-        dataUpdated();
-        Main.debug("notes in layer: " + notes.size());
-    }
-
-    /**
-     * Create a new note
-     * @param location Location of note
-     * @param text Required comment with which to open the note
-     */
-    public void createNote(LatLon location, String text) {
-        Note note = new Note(location);
-        note.setCreatedAt(new Date());
-        note.setState(State.open);
-        note.setId(newNoteId--);
-        NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.opened, true);
-        note.addComment(comment);
-        Main.debug("Created note {0} with comment: {1}", note.getId(), text);
-        notes.add(note);
-        dataUpdated();
-    }
-
-    /**
-     * Add a new comment to an existing note
-     * @param note Note to add comment to. Must already exist in the layer
-     * @param text Comment to add
-     */
-    public void addCommentToNote(Note note, String text) {
-        if (!notes.contains(note)) {
-            throw new IllegalArgumentException("Note to modify must be in layer");
-        }
-        if (note.getState() == State.closed) {
-            throw new IllegalStateException("Cannot add a comment to a closed note");
-        }
-        Main.debug("Adding comment to note {0}: {1}", note.getId(), text);
-        NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.commented, true);
-        note.addComment(comment);
-        dataUpdated();
-    }
-
-    /**
-     * Close note with comment
-     * @param note Note to close. Must already exist in the layer
-     * @param text Comment to attach to close action, if desired
-     */
-    public void closeNote(Note note, String text) {
-        if (!notes.contains(note)) {
-            throw new IllegalArgumentException("Note to close must be in layer");
-        }
-        if (note.getState() != State.open) {
-            throw new IllegalStateException("Cannot close a note that isn't open");
-        }
-        Main.debug("closing note {0} with comment: {1}", note.getId(), text);
-        NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.closed, true);
-        note.addComment(comment);
-        note.setState(State.closed);
-        note.setClosedAt(new Date());
-        dataUpdated();
-    }
-
-    /**
-     * Reopen a closed note.
-     * @param note Note to reopen. Must already exist in the layer
-     * @param text Comment to attach to the reopen action, if desired
-     */
-    public void reOpenNote(Note note, String text) {
-        if (!notes.contains(note)) {
-            throw new IllegalArgumentException("Note to reopen must be in layer");
-        }
-        if (note.getState() != State.closed) {
-            throw new IllegalStateException("Cannot reopen a note that isn't closed");
-        }
-        Main.debug("reopening note {0} with comment: {1}", note.getId(), text);
-        NoteComment comment = new NoteComment(new Date(), getCurrentUser(), text, NoteComment.Action.reopened, true);
-        note.addComment(comment);
-        note.setState(State.open);
-        dataUpdated();
-    }
-
-    private void dataUpdated() {
-        Main.map.mapView.repaint();
-        Main.map.noteDialog.setNoteList(notes);
-    }
-
-    private User getCurrentUser() {
-        JosmUserIdentityManager userMgr = JosmUserIdentityManager.getInstance();
-        return User.createOsmUser(userMgr.getUserId(), userMgr.getUserName());
-    }
-
     @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getButton() != MouseEvent.BUTTON1) {
@@ -328,7 +213,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         double snapDistance = 10;
         double minDistance = Double.MAX_VALUE;
         Note closestNote = null;
-        for (Note note : notes) {
+        for (Note note : noteData.getNotes()) {
             Point notePoint = Main.map.mapView.getPoint(note.getLatLon());
             //move the note point to the center of the icon where users are most likely to click when selecting
             notePoint.setLocation(notePoint.getX(), notePoint.getY() - NoteDialog.ICON_SMALL_SIZE / 2);
@@ -338,14 +223,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
                 closestNote = note;
             }
         }
-        if (closestNote == null) {
-            selectedNote = null;
-        } else {
-            selectedNote = closestNote;
-            Main.debug("Selected note: " + selectedNote.getId());
-        }
-        Main.map.noteDialog.setSelectedNote(selectedNote);
-        Main.map.mapView.repaint();
+        noteData.setSelectedNote(closestNote);
     }
 
     @Override
