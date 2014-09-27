@@ -30,7 +30,6 @@ import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.gui.dialogs.NoteDialog;
 import org.openstreetmap.josm.io.XmlWriter;
 import org.openstreetmap.josm.tools.ColorHelper;
-import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * A layer to hold Note objects
@@ -98,11 +97,11 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
 
             ImageIcon icon = null;
             if (note.getId() < 0) {
-                icon = ImageProvider.get("notes", NoteDialog.ICON_NEW_16);
+                icon = NoteDialog.ICON_NEW_SMALL;
             } else if (note.getState() == State.closed) {
-                icon = ImageProvider.get("notes", NoteDialog.ICON_CLOSED_16);
+                icon = NoteDialog.ICON_CLOSED_SMALL;
             } else {
-                icon = ImageProvider.get("notes", NoteDialog.ICON_OPEN_16);
+                icon = NoteDialog.ICON_OPEN_SMALL;
             }
             int width = icon.getIconWidth();
             int height = icon.getIconHeight();
@@ -158,7 +157,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
 
     @Override
     public Icon getIcon() {
-        return ImageProvider.get("notes", NoteDialog.ICON_OPEN_16);
+        return NoteDialog.ICON_OPEN_SMALL;
     }
 
     @Override
