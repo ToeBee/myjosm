@@ -63,6 +63,25 @@ public class NoteData {
     }
 
     /**
+     * Return whether or not there are any changes in the note data set.
+     * These changes may need to be either uploaded or saved.
+     * @return true if local modifications have been made to the note data set. False otherwise.
+     */
+    public boolean isModified() {
+        for (Note note : noteList) {
+            if (note.getId() < 0) { //notes with negative IDs are new
+                return true;
+            }
+            for (NoteComment comment : note.getComments()) {
+                if (comment.getIsNew()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Add notes to the data set. It only adds a note if the ID is not already present
      * @param newNotes A list of notes to add
      */
