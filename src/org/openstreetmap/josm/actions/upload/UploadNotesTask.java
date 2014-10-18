@@ -9,6 +9,7 @@ import org.openstreetmap.josm.data.notes.NoteComment;
 import org.openstreetmap.josm.data.osm.NoteData;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
 import org.openstreetmap.josm.gui.progress.ProgressMonitor;
+import org.openstreetmap.josm.io.OsmApi;
 import org.openstreetmap.josm.io.OsmTransferException;
 import org.xml.sax.SAXException;
 
@@ -40,6 +41,7 @@ public class UploadNotesTask {
         @Override
         protected void realRun() throws SAXException, IOException, OsmTransferException {
             progressMonitor.createSubTaskMonitor(ProgressMonitor.ALL_TICKS, false);
+            OsmApi api = OsmApi.getOsmApi();
             for (Note note : noteData.getNotes()) {
                 if(isCanceled) {
                     Main.info("Note upload interrupted by user");
@@ -48,20 +50,27 @@ public class UploadNotesTask {
                 for (NoteComment comment : note.getComments()) {
                     if (comment.getIsNew()) {
                         Main.debug("found note change to upload");
+                        Note newNote;
                         switch (comment.getNoteAction()) {
                         case opened:
                             Main.debug("opening new note");
+                            newNote = api.createNote(note.getLatLon(), comment.getText());
+                            note.setId(newNote.getId());
                             break;
                         case closed:
                             Main.debug("closing note " + note.getId());
+                            newNote = api.closeNote(note, comment.getText());
                             break;
                         case commented:
                             Main.debug("adding comment to note " + note.getId());
+                            newNote = api.AddCommentToNote(note, comment.getText());
                             break;
                         case reopened:
                             Main.debug("reopening note " + note.getId());
+                            newNote = api.reopenNote(note, comment.getText());
                             break;
                         }
+                        comment.setIsNew(false);
                     }
                 }
             }
