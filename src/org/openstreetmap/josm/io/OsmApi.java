@@ -392,7 +392,7 @@ public class OsmApi extends OsmConnection {
      * @param monitor the progress monitor
      * @throws OsmTransferException if something goes wrong
      */
-    public void deletePrimitive(OsmPrimitive osm, ProgressMonitor monitor) throws OsmTransferException {
+    public void deletePrimitive(IPrimitive osm, ProgressMonitor monitor) throws OsmTransferException {
         ensureValidChangeset();
         initialize(monitor);
         // can't use a the individual DELETE method in the 0.6 API. Java doesn't allow
@@ -511,7 +511,7 @@ public class OsmApi extends OsmConnection {
      * @return list of processed primitives
      * @throws OsmTransferException if something is wrong
      */
-    public Collection<OsmPrimitive> uploadDiff(Collection<? extends OsmPrimitive> list, ProgressMonitor monitor) throws OsmTransferException {
+    public Collection<IPrimitive> uploadDiff(Collection<? extends IPrimitive> list, ProgressMonitor monitor) throws OsmTransferException {
         try {
             monitor.beginTask("", list.size() * 2);
             if (changeset == null)
