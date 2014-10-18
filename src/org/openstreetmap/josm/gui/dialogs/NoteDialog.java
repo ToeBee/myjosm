@@ -27,6 +27,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.UploadNotesAction;
 import org.openstreetmap.josm.actions.mapmode.AddNoteAction;
 import org.openstreetmap.josm.data.notes.Note;
 import org.openstreetmap.josm.data.notes.Note.State;
@@ -72,6 +73,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     private final CloseAction closeAction;
     private final NewAction newAction;
     private final ReopenAction reopenAction;
+    private final UploadNotesAction uploadAction;
 
     private NoteData noteData;
 
@@ -84,6 +86,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         closeAction = new CloseAction();
         newAction = new NewAction();
         reopenAction = new ReopenAction();
+        uploadAction = new UploadNotesAction();
         buildDialog();
     }
 
@@ -113,7 +116,8 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
                 new SideButton(newAction, false),
                 new SideButton(addCommentAction, false),
                 new SideButton(closeAction, false),
-                new SideButton(reopenAction, false)}));
+                new SideButton(reopenAction, false),
+                new SideButton(uploadAction, false)}));
         updateButtonStates();
     }
 
@@ -130,6 +134,11 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
             closeAction.setEnabled(false);
             addCommentAction.setEnabled(false);
             reopenAction.setEnabled(true);
+        }
+        if(noteData == null || !noteData.isModified()) {
+            uploadAction.setEnabled(false);
+        } else {
+            uploadAction.setEnabled(true);
         }
     }
 
