@@ -791,12 +791,10 @@ public class OsmApi extends OsmConnection {
      * Create a new note on the server
      * @param latlon Location of note
      * @param text Comment entered by user to open the note
-     * @param monitor Progress monitor
      * @return Note as it exists on the server after creation (ID assigned)
      * @throws OsmTransferException
      */
-    public Note createNote(LatLon latlon, String text, ProgressMonitor monitor) throws OsmTransferException {
-        initialize(monitor);
+    public Note createNote(LatLon latlon, String text) throws OsmTransferException {
         String url = new StringBuilder()
             .append("notes?lat=")
             .append(latlon.lat())
