@@ -803,7 +803,7 @@ public class OsmApi extends OsmConnection {
             .append("&text=")
             .append(urlEncode(text)).toString();
 
-        String response = sendRequest("POST", url, null, monitor, true, false);
+        String response = sendRequest("POST", url, null, NullProgressMonitor.INSTANCE, true, false);
         return parseSingleNote(response);
     }
 

@@ -63,7 +63,7 @@ public class UploadNotesTask {
                             break;
                         case commented:
                             Main.debug("adding comment to note " + note.getId());
-                            newNote = api.AddCommentToNote(note, comment.getText());
+                            newNote = api.addCommentToNote(note, comment.getText());
                             break;
                         case reopened:
                             Main.debug("reopening note " + note.getId());
