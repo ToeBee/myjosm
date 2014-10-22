@@ -11,8 +11,22 @@ import org.openstreetmap.josm.actions.upload.UploadNotesTask;
 import org.openstreetmap.josm.data.osm.NoteData;
 import org.openstreetmap.josm.gui.layer.NoteLayer;
 import org.openstreetmap.josm.gui.progress.PleaseWaitProgressMonitor;
+import org.openstreetmap.josm.tools.ImageProvider;
 
+/**
+ * Action to initiate uploading changed notes to the OSM server.
+ * On click, it finds the note layer and fires off an upload task
+ * with the note data contained in the layer.
+ *
+ */
 public class UploadNotesAction extends JosmAction {
+
+    /** Create a new action to upload notes */
+    public UploadNotesAction () {
+        putValue(SHORT_DESCRIPTION,tr("Upload note changes to server"));
+        putValue(NAME, tr("Upload notes"));
+        putValue(SMALL_ICON, ImageProvider.get("upload"));
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -34,8 +48,7 @@ public class UploadNotesAction extends JosmAction {
             Main.debug("No changed notes to upload");
             return;
         }
-        PleaseWaitProgressMonitor monitor = new PleaseWaitProgressMonitor(tr("Uploading Notes"));
         UploadNotesTask uploadTask = new UploadNotesTask();
-        uploadTask.uploadNotes(noteData, new PleaseWaitProgressMonitor("Uploading notes to server"));
+        uploadTask.uploadNotes(noteData, new PleaseWaitProgressMonitor(tr("Uploading notes to server")));
     }
 }
