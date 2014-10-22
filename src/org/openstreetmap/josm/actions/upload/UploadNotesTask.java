@@ -40,7 +40,7 @@ public class UploadNotesTask {
 
         @Override
         protected void realRun() throws SAXException, IOException, OsmTransferException {
-            progressMonitor.createSubTaskMonitor(ProgressMonitor.ALL_TICKS, false);
+            ProgressMonitor monitor = progressMonitor.createSubTaskMonitor(ProgressMonitor.ALL_TICKS, false);
             OsmApi api = OsmApi.getOsmApi();
             for (Note note : noteData.getNotes()) {
                 if(isCanceled) {
@@ -54,20 +54,20 @@ public class UploadNotesTask {
                         switch (comment.getNoteAction()) {
                         case opened:
                             Main.debug("opening new note");
-                            newNote = api.createNote(note.getLatLon(), comment.getText());
+                            newNote = api.createNote(note.getLatLon(), comment.getText(), monitor);
                             note.setId(newNote.getId());
                             break;
                         case closed:
                             Main.debug("closing note " + note.getId());
-                            newNote = api.closeNote(note, comment.getText());
+                            newNote = api.closeNote(note, comment.getText(), monitor);
                             break;
                         case commented:
                             Main.debug("adding comment to note " + note.getId());
-                            newNote = api.addCommentToNote(note, comment.getText());
+                            newNote = api.addCommentToNote(note, comment.getText(), monitor);
                             break;
                         case reopened:
                             Main.debug("reopening note " + note.getId());
-                            newNote = api.reopenNote(note, comment.getText());
+                            newNote = api.reopenNote(note, comment.getText(), monitor);
                             break;
                         }
                         comment.setIsNew(false);
