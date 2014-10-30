@@ -4,6 +4,7 @@ package org.openstreetmap.josm.data.osm;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.coor.LatLon;
@@ -183,5 +184,19 @@ public class NoteData {
     private User getCurrentUser() {
         JosmUserIdentityManager userMgr = JosmUserIdentityManager.getInstance();
         return User.createOsmUser(userMgr.getUserId(), userMgr.getUserName());
+    }
+
+    /**
+     * Updates notes with new state. Primarily to be used when updating the
+     * note layer after uploading note changes to the server.
+     * @param updatedNotes Map containing the original note as the key and the updated note as the value
+     */
+    public void updateNotes(Map<Note, Note> updatedNotes) {
+        for (Map.Entry<Note, Note> entry : updatedNotes.entrySet()) {
+            Note oldNote = entry.getKey();
+            Note newNote = entry.getValue();
+            oldNote.updateWith(newNote);
+        }
+        dataUpdated();
     }
 }

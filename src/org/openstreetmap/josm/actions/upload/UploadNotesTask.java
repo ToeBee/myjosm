@@ -2,6 +2,8 @@
 package org.openstreetmap.josm.actions.upload;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.notes.Note;
@@ -27,6 +29,7 @@ public class UploadNotesTask {
     private class UploadTask extends PleaseWaitRunnable {
 
         private boolean isCanceled = false;
+        Map<Note, Note> updatedNotes = new HashMap<>();
 
         public UploadTask(String title, ProgressMonitor monitor) {
             super(title, monitor, false);
@@ -69,8 +72,10 @@ public class UploadNotesTask {
                             Main.debug("reopening note " + note.getId());
                             newNote = api.reopenNote(note, comment.getText(), monitor);
                             break;
+                        default:
+                            newNote = null;
                         }
-                        comment.setIsNew(false);
+                        updatedNotes.put(note, newNote);
                     }
                 }
             }
@@ -78,7 +83,8 @@ public class UploadNotesTask {
 
         @Override
         protected void finish() {
-            Main.debug("finish called in notes upload task");
+            Main.debug("finish called in notes upload task. Notes to update: " + updatedNotes.size());
+            noteData.updateNotes(updatedNotes);
         }
 
     }
