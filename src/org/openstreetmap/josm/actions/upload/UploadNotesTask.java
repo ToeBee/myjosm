@@ -30,6 +30,7 @@ public class UploadNotesTask {
 
         private boolean isCanceled = false;
         Map<Note, Note> updatedNotes = new HashMap<>();
+        Map<Note, Exception> failedNotes = new HashMap<>();
 
         public UploadTask(String title, ProgressMonitor monitor) {
             super(title, monitor, false);
@@ -53,29 +54,34 @@ public class UploadNotesTask {
                 for (NoteComment comment : note.getComments()) {
                     if (comment.getIsNew()) {
                         Main.debug("found note change to upload");
-                        Note newNote;
-                        switch (comment.getNoteAction()) {
-                        case opened:
-                            Main.debug("opening new note");
-                            newNote = api.createNote(note.getLatLon(), comment.getText(), monitor);
-                            note.setId(newNote.getId());
-                            break;
-                        case closed:
-                            Main.debug("closing note " + note.getId());
-                            newNote = api.closeNote(note, comment.getText(), monitor);
-                            break;
-                        case commented:
-                            Main.debug("adding comment to note " + note.getId());
-                            newNote = api.addCommentToNote(note, comment.getText(), monitor);
-                            break;
-                        case reopened:
-                            Main.debug("reopening note " + note.getId());
-                            newNote = api.reopenNote(note, comment.getText(), monitor);
-                            break;
-                        default:
-                            newNote = null;
+                        try {
+                            Note newNote;
+                            switch (comment.getNoteAction()) {
+                            case opened:
+                                Main.debug("opening new note");
+                                newNote = api.createNote(note.getLatLon(), comment.getText(), monitor);
+                                note.setId(newNote.getId());
+                                break;
+                            case closed:
+                                Main.debug("closing note " + note.getId());
+                                newNote = api.closeNote(note, comment.getText(), monitor);
+                                break;
+                            case commented:
+                                Main.debug("adding comment to note " + note.getId());
+                                newNote = api.addCommentToNote(note, comment.getText(), monitor);
+                                break;
+                            case reopened:
+                                Main.debug("reopening note " + note.getId());
+                                newNote = api.reopenNote(note, comment.getText(), monitor);
+                                break;
+                            default:
+                                newNote = null;
+                            }
+                            updatedNotes.put(note, newNote);
+                        } catch (Exception e) {
+                            Main.error("Failed to upload note to server: " + note.getId());
+                            failedNotes.put(note, e);
                         }
-                        updatedNotes.put(note, newNote);
                     }
                 }
             }
@@ -85,6 +91,12 @@ public class UploadNotesTask {
         protected void finish() {
             Main.debug("finish called in notes upload task. Notes to update: " + updatedNotes.size());
             noteData.updateNotes(updatedNotes);
+            if (!failedNotes.isEmpty()) {
+                Main.error("Some notes failed to upload");
+                for (Map.Entry<Note, Exception> entry : failedNotes.entrySet()) {
+                    Main.error("note " + entry.getKey().getId() + " failed: " + entry.getValue().getMessage());
+                }
+            }
         }
 
     }
