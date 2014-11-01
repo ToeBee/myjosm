@@ -1,9 +1,13 @@
 // License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.actions.upload;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.notes.Note;
@@ -93,9 +97,13 @@ public class UploadNotesTask {
             noteData.updateNotes(updatedNotes);
             if (!failedNotes.isEmpty()) {
                 Main.error("Some notes failed to upload");
+                StringBuilder sb = new StringBuilder();
                 for (Map.Entry<Note, Exception> entry : failedNotes.entrySet()) {
-                    Main.error("note " + entry.getKey().getId() + " failed: " + entry.getValue().getMessage());
+                    sb.append(tr("Note {0} failed: {1}", entry.getKey().getId(), entry.getValue().getMessage()));
+                    sb.append("\n");
                 }
+                Main.error("Notes failed to upload: " + sb.toString());
+                JOptionPane.showMessageDialog(Main.map, sb.toString(), tr("Notes failed to upload"), JOptionPane.ERROR_MESSAGE);
             }
         }
 
