@@ -68,7 +68,7 @@ public class NoteData {
      * These changes may need to be either uploaded or saved.
      * @return true if local modifications have been made to the note data set. False otherwise.
      */
-    public boolean isModified() {
+    public synchronized boolean isModified() {
         for (Note note : noteList) {
             if (note.getId() < 0) { //notes with negative IDs are new
                 return true;
@@ -86,7 +86,7 @@ public class NoteData {
      * Add notes to the data set. It only adds a note if the ID is not already present
      * @param newNotes A list of notes to add
      */
-    public void addNotes(List<Note> newNotes) {
+    public synchronized void addNotes(List<Note> newNotes) {
         for (Note newNote : newNotes) {
             if (!noteList.contains(newNote)) {
                 noteList.add(newNote);
@@ -104,7 +104,7 @@ public class NoteData {
      * @param location Location of note
      * @param text Required comment with which to open the note
      */
-    public void createNote(LatLon location, String text) {
+    public synchronized void createNote(LatLon location, String text) {
         if(text == null || text.isEmpty()) {
             throw new IllegalArgumentException("Comment can not be blank when creating a note");
         }
@@ -124,7 +124,7 @@ public class NoteData {
      * @param note Note to add comment to. Must already exist in the layer
      * @param text Comment to add
      */
-    public void addCommentToNote(Note note, String text) {
+    public synchronized void addCommentToNote(Note note, String text) {
         if (!noteList.contains(note)) {
             throw new IllegalArgumentException("Note to modify must be in layer");
         }
@@ -142,7 +142,7 @@ public class NoteData {
      * @param note Note to close. Must already exist in the layer
      * @param text Comment to attach to close action, if desired
      */
-    public void closeNote(Note note, String text) {
+    public synchronized void closeNote(Note note, String text) {
         if (!noteList.contains(note)) {
             throw new IllegalArgumentException("Note to close must be in layer");
         }
@@ -162,7 +162,7 @@ public class NoteData {
      * @param note Note to reopen. Must already exist in the layer
      * @param text Comment to attach to the reopen action, if desired
      */
-    public void reOpenNote(Note note, String text) {
+    public synchronized void reOpenNote(Note note, String text) {
         if (!noteList.contains(note)) {
             throw new IllegalArgumentException("Note to reopen must be in layer");
         }
@@ -191,7 +191,7 @@ public class NoteData {
      * note layer after uploading note changes to the server.
      * @param updatedNotes Map containing the original note as the key and the updated note as the value
      */
-    public void updateNotes(Map<Note, Note> updatedNotes) {
+    public synchronized void updateNotes(Map<Note, Note> updatedNotes) {
         for (Map.Entry<Note, Note> entry : updatedNotes.entrySet()) {
             Note oldNote = entry.getKey();
             Note newNote = entry.getValue();
