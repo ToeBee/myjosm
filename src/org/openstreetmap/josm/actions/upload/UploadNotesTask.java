@@ -19,11 +19,19 @@ import org.openstreetmap.josm.io.OsmApi;
 import org.openstreetmap.josm.io.OsmTransferException;
 import org.xml.sax.SAXException;
 
+/**
+ * Class for uploading note changes to the server
+ */
 public class UploadNotesTask {
 
     private UploadTask uploadTask;
     private NoteData noteData;
 
+    /**
+     * Upload notes with modifications to the server
+     * @param noteData Note dataset with changes to upload
+     * @param progressMonitor progress monitor for user feedback
+     */
     public void uploadNotes(NoteData noteData, ProgressMonitor progressMonitor) {
         this.noteData = noteData;
         uploadTask = new UploadTask("Uploading modified notes", progressMonitor);
@@ -91,6 +99,7 @@ public class UploadNotesTask {
             }
         }
 
+        /** Updates the note layer with uploaded notes and notifies the user of any upload failures */
         @Override
         protected void finish() {
             Main.debug("finish called in notes upload task. Notes to update: " + updatedNotes.size());
