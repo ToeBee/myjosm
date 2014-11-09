@@ -3,22 +3,15 @@ package org.openstreetmap.josm.actions.mapmode;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
-import java.awt.Component;
 import java.awt.event.MouseEvent;
 
-import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.NoteData;
-import org.openstreetmap.josm.gui.ExtendedDialog;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.gui.NoteInputDialog;
 import org.openstreetmap.josm.gui.Notification;
 import org.openstreetmap.josm.gui.dialogs.NoteDialog;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -68,32 +61,14 @@ public class AddNoteAction extends MapMode {
         Main.map.selectMapMode(Main.map.mapModeSelect);
         LatLon latlon = Main.map.mapView.getLatLon(e.getPoint().x, e.getPoint().y);
 
-        JLabel label = new JLabel(tr("Enter a comment for a new note"));
-        JTextArea textArea = new JTextArea();
-        textArea.setRows(6);
-        textArea.setColumns(30);
-        textArea.setLineWrap(true);
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setAlignmentX(Component.LEFT_ALIGNMENT); //without this the label gets pushed to the right
-
-        JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        contentPanel.add(label);
-        contentPanel.add(scrollPane);
-
-        ExtendedDialog dialog = new ExtendedDialog(Main.parent,
-                tr("Create new note"),
-                new String[] {tr("Create note"), tr("Cancel")}
-        );
-        dialog.setContent(contentPanel, false);
-        dialog.setButtonIcons(new Icon[] {NoteDialog.ICON_NEW, ImageProvider.get("cancel.png")});
-        dialog.showDialog();
+        NoteInputDialog dialog = new NoteInputDialog(Main.parent, tr("Create new note"), tr("Create note"));
+        dialog.showNoteDialog(tr("Enter a comment for a new note"), NoteDialog.ICON_NEW);
 
         if (dialog.getValue() != 1) {
             Main.debug("User aborted note creation");
             return;
         }
-        String input = textArea.getText();
+        String input = dialog.getInputText();
         if (input != null && !input.isEmpty()) {
             noteData.createNote(latlon, input);
         } else {
