@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JToolTip;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.SaveActionBase;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.notes.Note;
 import org.openstreetmap.josm.data.notes.Note.State;
@@ -28,6 +30,7 @@ import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.gui.dialogs.NoteDialog;
+import org.openstreetmap.josm.io.NoteExporter;
 import org.openstreetmap.josm.io.XmlWriter;
 import org.openstreetmap.josm.tools.ColorHelper;
 
@@ -78,6 +81,17 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
     @Override
     public boolean requiresUploadToServer() {
         return isModified();
+    }
+
+    @Override
+    public boolean isSavable() {
+        return true;
+    }
+
+    @Override
+    public boolean requiresSaveToFile() {
+        Main.debug("associated notes file: " + getAssociatedFile());
+        return getAssociatedFile() != null && isModified();
     }
 
     @Override
@@ -213,6 +227,11 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
             }
         }
         noteData.setSelectedNote(closestNote);
+    }
+
+    @Override
+    public File createAndOpenSaveFileChooser() {
+        return SaveActionBase.createAndOpenSaveFileChooser(tr("Save GPX file"), NoteExporter.FILE_FILTER);
     }
 
     @Override
