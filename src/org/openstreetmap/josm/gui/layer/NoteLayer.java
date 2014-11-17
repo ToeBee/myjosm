@@ -121,7 +121,7 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
                 //closing a note creates an empty comment that we don't want to show
                 if (commentText != null && commentText.trim().length() > 0) {
                     sb.append(sep);
-                    String userName = comment.getUser().getName();
+                    String userName = XmlWriter.encode(comment.getUser().getName());
                     if (userName == null || userName.trim().length() == 0) {
                         userName = "&lt;Anonymous&gt;";
                     }
