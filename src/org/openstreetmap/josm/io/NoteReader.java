@@ -136,6 +136,9 @@ public class NoteReader {
             }
             if("comment".equals(qName)) {
                 User commentUser = User.createOsmUser(commentUid, commentUsername);
+                if (commentUid == 0) {
+                    commentUser = User.getAnonymous();
+                }
                 if(parseMode == NoteParseMode.API) {
                     commentIsNew = false;
                 }
