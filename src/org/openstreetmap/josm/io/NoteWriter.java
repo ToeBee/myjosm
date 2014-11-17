@@ -54,7 +54,7 @@ public class NoteWriter extends XmlWriter {
         out.print("    <comment");
         out.print(" action=\"" + comment.getNoteAction() + "\" ");
         out.print("timestamp=\"" + ISO8601_FORMAT.format(comment.getCommentTimestamp()) + "\" ");
-        if (comment.getUser() != null && comment.getUser().equals(User.getAnonymous())) {
+        if (comment.getUser() != null && !comment.getUser().equals(User.getAnonymous())) {
             out.print("uid=\"" + comment.getUser().getId() + "\" ");
             out.print("user=\"" + encode(comment.getUser().getName()) + "\" ");
         }
