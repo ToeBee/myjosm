@@ -12,6 +12,7 @@ import java.util.Locale;
 import org.openstreetmap.josm.data.notes.Note;
 import org.openstreetmap.josm.data.notes.NoteComment;
 import org.openstreetmap.josm.data.osm.NoteData;
+import org.openstreetmap.josm.data.osm.User;
 
 public class NoteWriter extends XmlWriter {
 
@@ -53,9 +54,9 @@ public class NoteWriter extends XmlWriter {
         out.print("    <comment");
         out.print(" action=\"" + comment.getNoteAction() + "\" ");
         out.print("timestamp=\"" + ISO8601_FORMAT.format(comment.getCommentTimestamp()) + "\" ");
-        if (comment.getUser() != null) {
+        if (comment.getUser() != null && comment.getUser().equals(User.getAnonymous())) {
             out.print("uid=\"" + comment.getUser().getId() + "\" ");
-            out.print("user=\"" + comment.getUser().getName() + "\" ");
+            out.print("user=\"" + encode(comment.getUser().getName()) + "\" ");
         }
         out.print("is_new=\"" + comment.getIsNew() + "\" ");
         out.print(">");
