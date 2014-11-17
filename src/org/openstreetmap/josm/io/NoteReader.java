@@ -164,6 +164,9 @@ public class NoteReader {
             case "date_created":
                 thisNote.setCreatedAt(parseDate(NOTE_DATE_FORMAT, buffer.toString()));
                 break;
+            case "date_closed":
+                thisNote.setClosedAt(parseDate(NOTE_DATE_FORMAT, buffer.toString()));
+                break;
             case "date":
                 commentCreateDate = parseDate(NOTE_DATE_FORMAT, buffer.toString());
                 break;
