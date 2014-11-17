@@ -14,18 +14,36 @@ import org.openstreetmap.josm.data.notes.NoteComment;
 import org.openstreetmap.josm.data.osm.NoteData;
 import org.openstreetmap.josm.data.osm.User;
 
+/**
+ * Class to write a collection of notes out to XML.
+ * The format is that of the note dump file with the addition of one
+ * attribute in the comment element to indicate if the comment is a new local
+ * comment that has not been uploaded to the OSM server yet.
+ */
 public class NoteWriter extends XmlWriter {
 
     private final SimpleDateFormat ISO8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.ENGLISH);
 
+    /**
+     * Create a NoteWriter that will write to the given PrintWriter
+     * @param out PrintWriter to write XML to
+     */
     public NoteWriter(PrintWriter out) {
         super(out);
     }
 
+    /**
+     * Create a NoteWriter that will write to a given OutputStream.
+     * @param out OutputStream to write XML to
+     */
     public NoteWriter(OutputStream out) {
         super(new PrintWriter(new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))));
     }
 
+    /**
+     * Write notes to designated output target
+     * @param data Note collection to write
+     */
     public void write(NoteData data) {
         out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         out.println("<osm-notes>");
