@@ -204,6 +204,8 @@ public class NoteLayer extends AbstractModifiableLayer implements MouseListener 
         actions.add(LayerListDialog.getInstance().createShowHideLayerAction());
         actions.add(LayerListDialog.getInstance().createDeleteLayerAction());
         actions.add(new LayerListPopup.InfoAction(this));
+        actions.add(new LayerSaveAction(this));
+        actions.add(new LayerSaveAsAction(this));
         return actions.toArray(new Action[actions.size()]);
     }
 
