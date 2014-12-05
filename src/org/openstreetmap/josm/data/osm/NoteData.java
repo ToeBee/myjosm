@@ -269,4 +269,14 @@ public class NoteData {
         }
         dataUpdated();
     }
+
+    /** Returns the current comparator being used to sort the note list */
+    public Comparator getCurrentSortMethod() {
+        return comparator;
+    }
+
+    public void setSortMethod(Comparator comparator) {
+        this.comparator = comparator;
+        dataUpdated();
+    }
 }

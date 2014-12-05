@@ -74,6 +74,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     private final CloseAction closeAction;
     private final NewAction newAction;
     private final ReopenAction reopenAction;
+    private final SortAction sortAction;
     private final UploadNotesAction uploadAction;
 
     private NoteData noteData;
@@ -89,6 +90,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         closeAction = new CloseAction();
         newAction = new NewAction();
         reopenAction = new ReopenAction();
+        sortAction = new SortAction();
         uploadAction = new UploadNotesAction();
         buildDialog();
     }
@@ -120,6 +122,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
                 new SideButton(addCommentAction, false),
                 new SideButton(closeAction, false),
                 new SideButton(reopenAction, false),
+                new SideButton(sortAction, false),
                 new SideButton(uploadAction, false)}));
         updateButtonStates();
     }
@@ -143,6 +146,13 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         } else {
             uploadAction.setEnabled(true);
         }
+        if (noteData == null || noteData.getNotes().size() == 0) {
+            Main.debug("disabling sort action");
+            sortAction.setEnabled(false);
+        } else {
+            Main.debug("enabling sort action");
+            sortAction.setEnabled(true);
+        }
     }
 
     @Override
@@ -160,15 +170,11 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
     @Override
     public void layerAdded(Layer newLayer) {
-        if (Main.isDebugEnabled()) {
-            Main.debug("layer added: " + newLayer);
-        }
         if (newLayer instanceof NoteLayer) {
-            if (Main.isDebugEnabled()) {
-                Main.debug("note layer added");
-            }
+            Main.debug("note layer added");
             noteData = ((NoteLayer)newLayer).getNoteData();
             model.setData(noteData.getNotes());
+            setNoteList(noteData.getNotes());
         }
     }
 
@@ -361,6 +367,32 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
             Note note = displayList.getSelectedValue();
             noteData.reOpenNote(note, dialog.getInputText());
+        }
+    }
+
+    class SortAction extends AbstractAction {
+
+        public SortAction() {
+            putValue(SHORT_DESCRIPTION, tr("Sort by date created"));
+            putValue(NAME, tr("Sort"));
+            putValue(SMALL_ICON, ImageProvider.get("dialogs", "sort"));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (noteData.getCurrentSortMethod() == NoteData.DEFAULT_COMPARATOR) {
+                Main.debug("setting sort method to date");
+                putValue(SHORT_DESCRIPTION, tr("Sort by user name"));
+                noteData.setSortMethod(NoteData.DATE_COMPARATOR);
+            } else if (noteData.getCurrentSortMethod() == NoteData.DATE_COMPARATOR) {
+                Main.debug("setting sort method to user");
+                putValue(SHORT_DESCRIPTION, tr("Default sorting (open, closed, new)"));
+                noteData.setSortMethod(NoteData.USER_COMPARATOR);
+            } else if (noteData.getCurrentSortMethod() == NoteData.USER_COMPARATOR) {
+                Main.debug("setting sort method to default");
+                putValue(SHORT_DESCRIPTION, tr("Sort by date created"));
+                noteData.setSortMethod(NoteData.DEFAULT_COMPARATOR);
+            }
         }
     }
 }
