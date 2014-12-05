@@ -33,7 +33,7 @@ public class NoteData {
      * 3) New notes
      * Within each subgroup it sorts by ID
      */
-    private static final Comparator<Note> DEFAULT_COMPARATOR = new Comparator<Note>() {
+    public static final Comparator<Note> DEFAULT_COMPARATOR = new Comparator<Note>() {
 
         @Override
         public int compare(Note n1, Note n2) {
@@ -54,7 +54,7 @@ public class NoteData {
     };
 
     /** Sorts notes strictly by creation date */
-    private static final Comparator<Note> DATE_COMPARATOR = new Comparator<Note>() {
+    public static final Comparator<Note> DATE_COMPARATOR = new Comparator<Note>() {
         @Override
         public int compare(Note n1, Note n2) {
             return n1.getCreatedAt().compareTo(n2.getCreatedAt());
@@ -62,7 +62,7 @@ public class NoteData {
     };
 
     /** Sorts notes by user, then creation date */
-    private static final Comparator<Note> USER_COMPARATOR = new Comparator<Note>() {
+    public static final Comparator<Note> USER_COMPARATOR = new Comparator<Note>() {
         @Override
         public int compare(Note n1, Note n2) {
             String n1User = n1.getFirstComment().getUser().getName();
