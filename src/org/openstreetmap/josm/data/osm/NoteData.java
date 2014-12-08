@@ -74,6 +74,16 @@ public class NoteData {
         }
     };
 
+    /** Sorts notes by the last modified date */
+    public static final Comparator<Note> LAST_ACTION_COMPARATOR = new Comparator<Note>() {
+        @Override
+        public int compare(Note n1, Note n2) {
+            Date n1Date = n1.getComments().get(n1.getComments().size()-1).getCommentTimestamp();
+            Date n2Date = n2.getComments().get(n2.getComments().size()-1).getCommentTimestamp();
+            return n1Date.compareTo(n2Date);
+        }
+    };
+
     /**
      * Construct a new note container with an empty note list
      */
