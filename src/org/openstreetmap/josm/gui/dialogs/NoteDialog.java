@@ -32,9 +32,11 @@ import org.openstreetmap.josm.actions.mapmode.AddNoteAction;
 import org.openstreetmap.josm.data.notes.Note;
 import org.openstreetmap.josm.data.notes.Note.State;
 import org.openstreetmap.josm.data.osm.NoteData;
+import org.openstreetmap.josm.gui.ExtendedDialog;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.NoteInputDialog;
+import org.openstreetmap.josm.gui.NoteSortDialog;
 import org.openstreetmap.josm.gui.SideButton;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.NoteLayer;
@@ -380,18 +382,11 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (noteData.getCurrentSortMethod() == NoteData.DEFAULT_COMPARATOR) {
-                Main.debug("setting sort method to date");
-                putValue(SHORT_DESCRIPTION, tr("Sort by user name"));
-                noteData.setSortMethod(NoteData.DATE_COMPARATOR);
-            } else if (noteData.getCurrentSortMethod() == NoteData.DATE_COMPARATOR) {
-                Main.debug("setting sort method to user");
-                putValue(SHORT_DESCRIPTION, tr("Default sorting (open, closed, new)"));
-                noteData.setSortMethod(NoteData.USER_COMPARATOR);
-            } else if (noteData.getCurrentSortMethod() == NoteData.USER_COMPARATOR) {
-                Main.debug("setting sort method to default");
-                putValue(SHORT_DESCRIPTION, tr("Sort by date created"));
-                noteData.setSortMethod(NoteData.DEFAULT_COMPARATOR);
+            NoteSortDialog sortDialog = new NoteSortDialog(Main.parent, tr("Sort notes"), tr("Apply"));
+            ExtendedDialog dialog = sortDialog.showSortDialog(noteData.getCurrentSortMethod());
+            Main.debug("sort dialog return value: " + dialog.getValue());
+            if(dialog.getValue() ==1) {
+                noteData.setSortMethod(sortDialog.getSelectedComparator());
             }
         }
     }
