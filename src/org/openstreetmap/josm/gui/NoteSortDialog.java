@@ -16,6 +16,9 @@ import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.notes.Note;
 import org.openstreetmap.josm.data.osm.NoteData;
 
+/**
+ * A dialog to allow the user to choose a sorting method for the list of notes
+ */
 public class NoteSortDialog extends ExtendedDialog {
 
     private JRadioButton defaultSort = new JRadioButton(tr("Default (open, closed, new)"));
@@ -23,11 +26,21 @@ public class NoteSortDialog extends ExtendedDialog {
     private JRadioButton dateSort = new JRadioButton(tr("Created date"));
     private JRadioButton lastActionSort = new JRadioButton(tr("Last change date"));
 
+    /**
+     * Construct a new dialog. The constructor automatically adds a "Cancel" button.
+     * @param parent - Parent component. Usually Main.parent
+     * @param title - Translated text to display in the title bar of the dialog
+     * @param buttonText - Translated text to be shown on the action button
+     */
     public NoteSortDialog(Component parent, String title, String buttonText) {
         super(parent, title, new String[] {buttonText, tr("Cancel")});
     }
 
-    public ExtendedDialog showSortDialog(Comparator currentSortMode) {
+    /**
+     * Builds and displays the window to the user.
+     * @param currentSortMode - The current sort mode which will be pre-selected in the list
+     */
+    public void showSortDialog(Comparator<Note> currentSortMode) {
         JLabel label = new JLabel(tr("Select note sorting method"));
         if (currentSortMode == NoteData.DEFAULT_COMPARATOR) {
             defaultSort.setSelected(true);
@@ -57,9 +70,10 @@ public class NoteSortDialog extends ExtendedDialog {
 
         setContent(panel);
 
-        return showDialog();
+        showDialog();
     }
 
+    /** @return Note comparator that the user has selected */
     public Comparator<Note> getSelectedComparator() {
         if (dateSort.isSelected()) {
             return NoteData.DATE_COMPARATOR;

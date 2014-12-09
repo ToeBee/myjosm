@@ -32,7 +32,6 @@ import org.openstreetmap.josm.actions.mapmode.AddNoteAction;
 import org.openstreetmap.josm.data.notes.Note;
 import org.openstreetmap.josm.data.notes.Note.State;
 import org.openstreetmap.josm.data.osm.NoteData;
-import org.openstreetmap.josm.gui.ExtendedDialog;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.NoteInputDialog;
@@ -383,9 +382,9 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             NoteSortDialog sortDialog = new NoteSortDialog(Main.parent, tr("Sort notes"), tr("Apply"));
-            ExtendedDialog dialog = sortDialog.showSortDialog(noteData.getCurrentSortMethod());
-            Main.debug("sort dialog return value: " + dialog.getValue());
-            if(dialog.getValue() ==1) {
+            sortDialog.showSortDialog(noteData.getCurrentSortMethod());
+            Main.debug("sort dialog return value: " + sortDialog.getValue());
+            if (sortDialog.getValue() == 1) {
                 noteData.setSortMethod(sortDialog.getSelectedComparator());
             }
         }

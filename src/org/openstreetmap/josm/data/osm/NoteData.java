@@ -280,12 +280,16 @@ public class NoteData {
         dataUpdated();
     }
 
-    /** Returns the current comparator being used to sort the note list */
-    public Comparator getCurrentSortMethod() {
+    /** @return The current comparator being used to sort the note list */
+    public Comparator<Note> getCurrentSortMethod() {
         return comparator;
     }
 
-    public void setSortMethod(Comparator comparator) {
+    /** Set the comparator to be used to sort the note list. Several are available
+     * as public static members of this class.
+     * @param comparator - The Note comparator to sort by
+     */
+    public void setSortMethod(Comparator<Note> comparator) {
         this.comparator = comparator;
         dataUpdated();
     }
