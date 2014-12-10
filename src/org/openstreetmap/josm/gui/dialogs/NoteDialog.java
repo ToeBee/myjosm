@@ -373,7 +373,7 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
     class SortAction extends AbstractAction {
 
         public SortAction() {
-            putValue(SHORT_DESCRIPTION, tr("Sort by date created"));
+            putValue(SHORT_DESCRIPTION, tr("Sort notes"));
             putValue(NAME, tr("Sort"));
             putValue(SMALL_ICON, ImageProvider.get("dialogs", "sort"));
         }
