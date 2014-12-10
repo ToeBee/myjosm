@@ -147,11 +147,10 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         } else {
             uploadAction.setEnabled(true);
         }
+        //enable sort button if any notes are loaded
         if (noteData == null || noteData.getNotes().size() == 0) {
-            Main.debug("disabling sort action");
             sortAction.setEnabled(false);
         } else {
-            Main.debug("enabling sort action");
             sortAction.setEnabled(true);
         }
     }
@@ -383,7 +382,6 @@ public class NoteDialog extends ToggleDialog implements LayerChangeListener {
         public void actionPerformed(ActionEvent e) {
             NoteSortDialog sortDialog = new NoteSortDialog(Main.parent, tr("Sort notes"), tr("Apply"));
             sortDialog.showSortDialog(noteData.getCurrentSortMethod());
-            Main.debug("sort dialog return value: " + sortDialog.getValue());
             if (sortDialog.getValue() == 1) {
                 noteData.setSortMethod(sortDialog.getSelectedComparator());
             }
