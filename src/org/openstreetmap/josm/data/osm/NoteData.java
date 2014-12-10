@@ -34,7 +34,6 @@ public class NoteData {
      * Within each subgroup it sorts by ID
      */
     public static final Comparator<Note> DEFAULT_COMPARATOR = new Comparator<Note>() {
-
         @Override
         public int compare(Note n1, Note n2) {
             if (n1.getId() < 0 && n2.getId() > 0) {
