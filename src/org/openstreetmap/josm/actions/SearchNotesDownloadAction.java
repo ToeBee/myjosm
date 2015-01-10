@@ -6,6 +6,8 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -79,7 +81,12 @@ public class SearchNotesDownloadAction extends JosmAction {
         sb.append("&closed=");
         sb.append(closedLimit);
         sb.append("&q=");
-        sb.append(searchTerm);
+        try {
+            sb.append(URLEncoder.encode(searchTerm, "UTF-8"));
+        } catch (UnsupportedEncodingException ex) {
+            Main.error(ex, true); //thrown if UTF-8 isn't supported which seems unlikely.
+            return;
+        }
 
         DownloadNotesTask task = new DownloadNotesTask();
         task.loadUrl(false, sb.toString(), null);
