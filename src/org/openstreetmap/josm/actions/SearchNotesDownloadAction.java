@@ -24,12 +24,14 @@ import org.openstreetmap.josm.gui.widgets.HistoryComboBox;
 import org.openstreetmap.josm.io.OsmApi;
 
 /**
- * Action to use the Notes search API to download a set of notes
+ * Action to use the Notes search API to download all
+ * notes matching a given search term
  */
 public class SearchNotesDownloadAction extends JosmAction {
 
     private static final String HISTORY_KEY = "osm.notes.searchHistory";
 
+    /** Constructs a new note search action */
     public SearchNotesDownloadAction() {
         super(tr("Search Notes..."), "note_search", tr("Download notes from the note search API"), null, false);
     }
@@ -56,12 +58,12 @@ public class SearchNotesDownloadAction extends JosmAction {
         ed.setContent(contentPanel);
         ed.setButtonIcons(new String[] {"note_search.png", "cancel.png"});
         ed.showDialog();
-        if(ed.getValue() != 1) {
+        if (ed.getValue() != 1) {
             return;
         }
 
         String searchTerm = searchTermBox.getText();
-        if(searchTerm == null || searchTerm.trim().isEmpty()) {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
             Notification notification = new Notification(tr("You must enter a search term"));
             notification.setIcon(JOptionPane.WARNING_MESSAGE);
             notification.show();
@@ -92,5 +94,4 @@ public class SearchNotesDownloadAction extends JosmAction {
         DownloadNotesTask task = new DownloadNotesTask();
         task.loadUrl(false, sb.toString(), null);
     }
-
 }
