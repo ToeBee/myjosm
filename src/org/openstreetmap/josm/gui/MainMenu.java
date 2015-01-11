@@ -617,7 +617,10 @@ public class MainMenu extends JMenuBar {
         fileMenu.addSeparator();
         add(fileMenu, download);
         add(fileMenu, downloadPrimitive);
-        add(fileMenu, searchNotes);
+        //TODO: Remove conditional when notes are un-hidden
+        if (Main.pref.getBoolean("osm.notes.enableDownload", false)) {
+            add(fileMenu, searchNotes);
+        }
         add(fileMenu, downloadReferrers);
         add(fileMenu, update);
         add(fileMenu, updateSelection);
