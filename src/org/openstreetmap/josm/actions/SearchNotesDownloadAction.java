@@ -31,7 +31,7 @@ public class SearchNotesDownloadAction extends JosmAction {
     private static final String HISTORY_KEY = "osm.notes.searchHistory";
 
     public SearchNotesDownloadAction() {
-        super(tr("Search Notes..."), "eye", tr("Download notes from the note search API"), null, false);
+        super(tr("Search Notes..."), "note_search", tr("Download notes from the note search API"), null, false);
     }
 
     @Override
@@ -54,6 +54,7 @@ public class SearchNotesDownloadAction extends JosmAction {
 
         ExtendedDialog ed = new ExtendedDialog(Main.parent, tr("Search for notes"), new String[] {tr("Search for notes"), tr("Cancel")});
         ed.setContent(contentPanel);
+        ed.setButtonIcons(new String[] {"note_search.png", "cancel.png"});
         ed.showDialog();
         if(ed.getValue() != 1) {
             return;
